@@ -1,0 +1,208 @@
+# Tower Defense
+
+**Status:** ✅ Playable · **Difficulty to build:** ★★★★ (path generation, waves, targeting, economy, combos, placement UI, save)
+
+## Rules
+
+- Each game generates a new **semi-random path** on a 29×17 grid. The path never loops on itself, starts on the
+  left edge and ends on another side, is **at least 35 tiles long** (in practice 53–93), and always leaves at least
+  one free tile between its parts, so you can build on every side of it.
+- Build towers on any free tile (not on the path) with coins. You start with **200 coins** and **20 lives**.
+  Game over at 0 lives. Endless: your best wave is saved.
+- **Waves** start on a timer (the first one after 20 s), even if the previous wave is still alive. The timer grows with
+  the number of enemies: **30 s** at wave 1, 38 s at wave 10, 47 s at wave 20, **60 s from wave 35** (75 enemies).
+  A full wave takes about 26 s to spawn, so the last boss of a wave has about 30 s before the next wave starts.
+  As soon as every enemy is dead, the next wave starts after a 2 s breather instead of waiting for the clock.
+  **Send** starts the next wave right away and pays 1 coin per second skipped.
+- **Next wave preview**: the strip above the map shows the next wave's size, its share of each enemy type and its bosses.
+- **Pause and menu**: ❚❚ (or P) pauses at any moment. Going back to the menu (✕) pauses the game and keeps it while
+  the app is open: coming back to Tower Defense continues exactly where you were.
+- **Save and resume**: the game is saved **once per wave, just before the wave starts**. After closing the app,
+  Tower Defense asks "Resume wave N?" → **Continue** restarts that wave from its beginning (paused) or **New game**.
+  There is no save in the middle of a wave. The save is deleted at game over.
+
+## Shapes: towers and enemies
+
+Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own shape** and **×0.6 to the others**.
+
+| Shape    | Color  | Tower    | Attack                                                                                                                                                      | Cost | Range | Rate  | Damage |
+| -------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ----- | ----- | ------ |
+| Circle   | green  | Pulse    | hits every enemy in range                                                                                                                                   | 60   | 1.8   | 0.8/s | 10     |
+| Diamond  | red    | Flame    | cone toward the target + burn (2 s)                                                                                                                         | 80   | 2.2   | 5/s   | 2.5    |
+| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 3     | 3/s   | 5      |
+| Square   | blue   | Sniper   | instant long-range shot                                                                                                                                     | 100  | 7     | 0.5/s | 40     |
+| Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = dart damage, 4 s, up to 5 stacks)                                                                          | 70   | 3     | 1/s   | 4      |
+| Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 3.5   | 1.2/s | 4      |
+| Hexagon  | cyan   | Frost    | small damage to all in range + **slow 40%** for 1.5 s (55% from level 10)                                                                                   | 70   | 2     | 1/s   | 1.5    |
+| Octagon  | pink   | Electric | lightning: 100% to the target, then **70% to the next 2 enemies behind it** on the path (8 from level 10); each jump reaches at most 1.5 tiles further back | 75   | 2.8   | 0.9/s | 12     |
+
+| Enemy    | Power                                                                                      | HP  | Speed | Coins per kill | Lives lost at the end |
+| -------- | ------------------------------------------------------------------------------------------ | --- | ----- | -------------- | --------------------- |
+| Circle   | **Regeneration**: heals 2 HP/s                                                             | 30  | 1.4   | 4              | 1                     |
+| Diamond  | **Shield**: 25-point shield absorbs damage first, refills after 2 s without being hit      | 25  | 1.3   | 5              | 2                     |
+| Triangle | **Speed**: fast, low HP                                                                    | 18  | 2.6   | 5              | 1                     |
+| Square   | **Tank**: lots of HP, slow                                                                 | 90  | 0.8   | 8              | 3                     |
+| Star     | **Armor**: every direct hit is reduced by 3 (at least 20% still goes through)              | 40  | 1.2   | 6              | 2                     |
+| Pentagon | **Splitter**: on death splits into 2 small, faster copies (1 coin, 1 life each)            | 35  | 1.3   | 4              | 1                     |
+| Hexagon  | **Blink**: teleports 2 tiles forward every 4 s (slowed enemies blink less often)           | 28  | 1.4   | 6              | 2                     |
+| Octagon  | **Summoner**: drops a small minion behind itself every 3 s (15% of its HP, 1 coin, 1 life) | 45  | 1.1   | 6              | 2                     |
+
+- Coins per kill also get **+1 every 4 waves** (+5 at wave 20).
+- **Bosses**: ×10 HP and coins, ×5 lives lost, ×5 shield/regeneration, ×2 armor, slower, drawn bigger.
+  Early bosses are weaker: 60% of that strength at wave 5, 80% at wave 10, full strength from wave 15.
+  A Pentagon boss splits into 3 regular splitters; an Octagon boss summons twice as often.
+- Damage over time (Flame burn, Poison) ignores armor, which is why Poison counters Armor.
+  On the map, a slowed enemy has a dashed outline and a poisoned one a dot in its center.
+- **Tap an enemy** to see its HP, speed, power values (shield, regen, armor, splits, blink, summon) and lives cost.
+
+## Targeting
+
+- Select a tower and tap **Target** (or press T): **First** (default, furthest along the path), **Nearest** (closest to
+  the tower), or **Own shape** (the first enemy of the tower's own shape, where it does ×1.5 damage; if none is in range,
+  it falls back to First). Pulse and Frost hit everything in range, so their row shows a greyed-out "Target: all in range".
+- **All towers at once**: with no tower selected, the **All towers** button (or G) switches every tower's mode and
+  becomes the mode of towers built afterwards.
+- Each tower shows its mode as a small letter in its top-left corner: **F**, **N** or **S**.
+
+## Combos
+
+Two towers that are combo partners boost each other when placed **next to each other** (on one of the 8 tiles around).
+**Each partner adds +10%** to the combo stat, and it stacks: a tower between two partners gets +20%.
+Every tower kind is in 2 combos:
+
+| Combo         | Towers             | Bonus per partner                          |
+| ------------- | ------------------ | ------------------------------------------ |
+| Cold snap     | Pulse + Frost      | Pulse +10% damage, Frost +10% slow         |
+| Thermal shock | Frost + Flame      | Frost +10% fire rate, Flame +10% damage    |
+| Toxic fire    | Flame + Poison     | both +10% damage over time (burn / poison) |
+| Weak spot     | Poison + Sniper    | Poison +10% range, Sniper +10% damage      |
+| Spotter       | Sniper + Rifle     | Sniper +10% fire rate, Rifle +10% range    |
+| Crossfire     | Rifle + Piercer    | both +10% fire rate                        |
+| Conductor     | Piercer + Electric | both +10% damage                           |
+| Overcharge    | Electric + Pulse   | Electric +10% fire rate, Pulse +10% range  |
+
+- **Placing a tower** is two taps: the first tap on a free tile shows a preview (ghost tower, range, **its combo bonus
+  above it**, and **the +10% each neighbouring partner would gain below them**); tap the same tile again to build, or
+  another tile to compare. While a tower type is chosen, its partner towers on the map get a dashed outline.
+- A tower with an active combo shows a small **★ badge**; selecting it lists its bonuses in the panel.
+
+## Tower levels: upgrades and experience
+
+- **No level limit.** Levels 1–10 add the same bonus each, so that a **level 10 tower does ×3 damage per second** (+200%):
+  damage +11.1% per level (×2 at level 10), fire rate +5.6% (×1.5), range +3.3% (×1.3),
+  Piercer 3 → 9 enemies, Frost slow 40% → 55%, Electric 2 → 8 jumps.
+- **Above level 10**, each level multiplies damage by ×1.1 (fire rate, range, pierce, slow and jumps stay at their
+  level-10 values), so a rich player can keep up with the endless enemy growth.
+- **Upgrade** with coins: each level costs 35% more than the previous one (60% of the tower price for level 2).
+  Example for the Sniper (100): 60, 81, 109, 148, 199, 269, 363, 490, 662.
+- **Experience**: every kill gives the tower 1 XP (a boss counts as 5). When the bar under the tower is full, the tower
+  gains a **free level** and the bar resets. Kills needed per level grow ×2.45: 10, 25, 60, 147, 360, 883, 2163, 5299, 12983.
+  The kill goes to the last tower that damaged the enemy (burn and poison count for the tower that applied them).
+- **XP discount**: the upgrade price is reduced by how full the bar is (half-full bar = half price). Buying the upgrade
+  uses up that experience: the bar goes back to 0.
+- The tower's color gets **darker with each level** up to level 10 (light yellow → dark yellow); above 10 the level number
+  is written on the tower.
+- Selling refunds **50% of the coins spent** on the tower (price + paid upgrades; free XP levels are not refunded).
+
+## Lives and coins
+
+- **Boss wave healing**: when every enemy of a boss wave is gone (split copies and minions included), you get back
+  **30% of your lost lives**, rounded up (at least 1 if any life is missing). Examples: 10/20 → +3, 7/20 → +4, 19/20 → +1.
+- **Streak**: every **5 waves in a row without losing a life** adds **+5% coins per kill** (+5% at 5 waves, +10% at 10, ...).
+  Losing any life resets it. The panel shows the bonus and the current streak.
+- **Interest**: when a wave starts you earn **2% of the coins you hold**, at most 100 per wave. Saving up pays a little.
+- Short messages on the map show interest earned and lives healed.
+- **Damage dealt**: each tower counts the damage it has done since it was built (shown as "dealt" when selected).
+- **Game over summary**: lives lost per enemy type, and the damage done by each tower type (share in % and total).
+
+## Wave progression
+
+- **Enemy types** are introduced every 5 waves: Circle (wave 1), Diamond (6), Triangle (11), Square (16),
+  Star (21), Pentagon (26), Hexagon (31), Octagon (36).
+- **Number of enemies**: 5 + 2 × wave, max 75 (wave 1: 7, wave 10: 25, wave 20: 45, wave 35+: 75).
+  They spawn one by one, 0.9 s apart at wave 1, down to 0.35 s from wave 28 (a full wave takes about 26 s).
+- **Mix, waves 1–40**: every 3rd enemy is the newest type, the others are random among the unlocked types:
+
+| Waves | Newest type    | Each other type |
+| ----- | -------------- | --------------- |
+| 1–5   | 100% Circle    | —               |
+| 6–10  | 66.7% Diamond  | 33.3%           |
+| 11–15 | 55.6% Triangle | 22.2%           |
+| 16–20 | 50.0% Square   | 16.7%           |
+| 21–25 | 46.7% Star     | 13.3%           |
+| 26–30 | 44.4% Pentagon | 11.1%           |
+| 31–35 | 42.9% Hexagon  | 9.5%            |
+| 36–40 | 41.7% Octagon  | 8.3%            |
+
+- **Mix, from wave 41**: every wave draws a random share per type (whole numbers, a type can have 0) and a random
+  "spread", so some waves are dominated by one or two types and others are an even mix (about 36% of waves have one
+  type at 40%+, about 29% have no type above 25%).
+- **Enemy HP grows every wave**: ×1.02 per wave until wave 60, then ×1.03 (61–70), ×1.04 (71–80) and **×1.05 per wave
+  from wave 81** (cap). Total: ×2 at wave 35, ×2.6 at 50, ×5.3 at 75, ×17 at 100, ×195 at 150.
+- **Special powers grow slower**, with the square root of the HP growth (×4 HP → ×2 power): shield, regeneration, armor,
+  speed (up to ×2), blink distance (up to ×2), summon speed (up to ×2), and one more split copy per +50% power.
+- **Bosses** come with every 5th wave. A single boss comes at the end of the wave; several bosses are spread evenly
+  from the first enemy to the last, so you never fight two big bosses at the same time.
+
+| Waves     | Bosses                                                                                      |
+| --------- | ------------------------------------------------------------------------------------------- |
+| 5 → 40    | 1 boss, in intro order: Circle, Diamond, Triangle, Square, Star, Pentagon, Hexagon, Octagon |
+| 45 → 180  | 2 bosses: every pair of types (28 combinations)                                             |
+| 185 → 460 | 3 bosses: every triple (56 combinations)                                                    |
+| ...       | 4, 5, ... bosses the same way, then all 8 together, then one more each time                 |
+
+## Controls
+
+| Action                           | Keyboard   | Touch / mouse                                         |
+| -------------------------------- | ---------- | ----------------------------------------------------- |
+| Choose a tower to build          | 1–8        | Tap a tower in the side panel (tap again to cancel)   |
+| Preview / build                  | —          | Tap a free tile / tap it again                        |
+| Select a tower                   | —          | Tap it (shows range, level, XP, damage dealt, combos) |
+| Enemy info                       | —          | Tap an enemy                                          |
+| Upgrade / sell selected          | U / S      | **Up** / **Sell** buttons                             |
+| Change target mode of selected   | T          | **Target** button                                     |
+| Change target mode of all towers | G          | **All towers** button (when no tower is selected)     |
+| Pause / speed ×2                 | P / F      | ❚❚ / ×2 buttons                                       |
+| Send next wave now               | N or Space | **Send**                                              |
+| Back to menu                     | Escape     | ✕                                                     |
+
+## Code layout
+
+| File              | Role                                                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| `data.ts`         | **Balance tables**: towers, enemies, combos, upgrade/XP costs, economy (streak, interest, heal), colors.   |
+| `waves.ts`        | **Wave schedule**: timing, size and mix, enemy stat growth, bosses, the spawn queue of a wave.             |
+| `model.ts`        | Shared types (Enemy, Tower, projectiles, effects, stats).                                                  |
+| `game.ts`         | Game state, player actions (build, upgrade, sell, targeting), combos, waves, economy; `simulate(dt)`.      |
+| `enemies.ts`      | Enemy life cycle: spawning, burn/poison/regen/shield, movement, blink, summon, leaking, deaths and splits. |
+| `combat.ts`       | Tower attacks (one function per tower in `ATTACKS`), targeting, projectiles, damage, armor and shields.    |
+| `save.ts`         | Save / resume in localStorage.                                                                             |
+| `render.ts`       | Drawing of the map, towers, enemies, projectiles and effects.                                              |
+| `overlays.ts`     | Build preview with combo bonuses, next-wave strip, notes, game-over summary.                               |
+| `shapes.ts`       | The 8 shapes, combo star badge, bars, compact numbers.                                                     |
+| `panel.ts`        | The side panel: controls, shop, info lines, tower actions.                                                 |
+| `towerdefense.ts` | The scene: input, layout, selection, resume prompt, autosave.                                              |
+| `path.ts`         | Path generator (randomized depth-first search on a half-resolution grid).                                  |
+
+## Possible improvements
+
+Ideas not done yet, from the simplest to the biggest:
+
+1. **Specialization at level 10**: choose one of two paths per tower (e.g. Sniper "pierce armor" or "×2 vs bosses").
+2. **Sell confirmation** or an undo for the last build, to avoid costly mis-taps on small screens.
+3. **Zoom** (pinch) on phones, for more comfortable tile tapping.
+4. **Tower stats screen**: list of all towers with level, damage dealt and kills, sortable.
+5. **Several map shapes** (different grid sizes, two entrances later in the game).
+6. **Difficulty choice** at start (easy / normal / hard: starting coins, lives and growth rate).
+7. **Code**: a small headless balance simulator script (like the bot used during development) as an npm script,
+   to check the difficulty curve after balance changes.
+
+## Design notes
+
+- Positions are in tile units; enemies store `d`, the distance travelled along the path, which gives their position,
+  the "furthest along" targeting and the Electric chain order for free.
+- ×2 speed runs the simulation twice per frame, so the fixed 60 Hz timestep is kept.
+- The next wave is decided when the current one starts, so the preview always matches what comes.
+- Combo bonuses are recomputed only when a tower is built or sold.
+- Balance check (headless bot cycling the 8 tower types along the path and spending all coins on the cheapest upgrade):
+  it reaches wave ~104–106, losing almost no lives before wave ~95–100.
