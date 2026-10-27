@@ -30,9 +30,9 @@ Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own 
 | -------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ----- | ----- | ------ |
 | Circle   | green  | Pulse    | hits every enemy in range                                                                                                                                   | 60   | 1.5   | 0.8/s | 10     |
 | Diamond  | red    | Flame    | cone toward the target + burn (2 s)                                                                                                                         | 80   | 1.5   | 5/s   | 1.6    |
-| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 2.5   | 2/s   | 5      |
+| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 2.5   | 2/s   | 7.5    |
 | Square   | blue   | Sniper   | instant long-range shot                                                                                                                                     | 100  | 4.9   | 0.5/s | 21     |
-| Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = dart damage, 4 s, up to 5 stacks)                                                                          | 70   | 2.1   | 1/s   | 5.8    |
+| Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = 1.25 × dart damage, 4 s, up to 5 stacks)                                                                   | 70   | 2.1   | 1/s   | 7      |
 | Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 2.1   | 1.2/s | 4.6    |
 | Hexagon  | cyan   | Frost    | small damage to all in range + **slow 25%** for 1.5 s (39% from level 10)                                                                                   | 70   | 1.5   | 1/s   | 5      |
 | Octagon  | pink   | Electric | lightning: 100% to the target, then **70% to the next 2 enemies behind it** on the path (8 from level 10); each jump reaches at most 1.5 tiles further back | 75   | 2     | 0.9/s | 8      |
@@ -42,7 +42,7 @@ Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own 
 | Circle   | **Regeneration**: heals 2 HP/s                                                             | 30  | 1.6   | 4              | 1                     |
 | Diamond  | **Shield**: 32-point shield absorbs damage first, refills after 2 s without being hit      | 28  | 1.5   | 5              | 2                     |
 | Triangle | **Speed**: very fast, low HP                                                               | 26  | 3.6   | 5              | 1                     |
-| Square   | **Tank**: lots of HP, slow                                                                 | 210 | 0.95  | 8              | 3                     |
+| Square   | **Tank**: lots of HP, slow                                                                 | 170 | 0.95  | 8              | 3                     |
 | Star     | **Armor**: every direct hit is reduced by 5 (at least 20% still goes through)              | 58  | 1.5   | 6              | 2                     |
 | Pentagon | **Splitter**: on death splits into 3 small, faster copies (1 coin, 1 life each)            | 48  | 1.6   | 4              | 1                     |
 | Hexagon  | **Blink**: teleports 3 tiles forward every 4 s (slowed enemies blink less often)           | 40  | 1.7   | 6              | 2                     |
@@ -120,7 +120,7 @@ Every tower kind is in 2 combos:
   level-10 values), so a rich player can keep up with the endless enemy growth.
 - **Upgrade** with coins: each level costs 35% more than the previous one (60% of the tower price for level 2).
   Example for the Sniper (100): 60, 81, 109, 148, 199, 269, 363, 490, 662.
-- **Experience**: every kill is worth 1 XP (a boss 10), **shared by every tower that damaged the enemy**, in proportion
+- **Experience**: every kill is worth 2 XP (a boss 10), **shared by every tower that damaged the enemy**, in proportion
   to the damage each one did (burn and poison count for the tower that applied them). Towers early on the path that
   wear enemies down get experience too. Enemies reaching the end give no XP; a sold tower's share is lost.
   When the bar under the tower is full, the tower gains a **free level** and the bar resets. XP needed per level grows

@@ -29,11 +29,13 @@ export const SHIELD_DELAY = 2; // seconds without damage before a shield refills
 export const BURN_TIME = 2;
 export const POISON_TIME = 4;
 export const POISON_STACKS = 5; // max poison stacks on one enemy
+export const POISON_DPS = 1.25; // damage per second of one poison stack, as a share of the dart's damage
 export const SLOW_TIME = 1.5;
 export const ARMOR_MIN = 0.2; // armor can never block more than 80% of a hit
 export const BLINK_EVERY = 4; // seconds between blinks (slowed enemies blink less often)
 export const BOSS_WAVE_HEAL = 0.3; // share of lost lives given back when a boss wave is finished
-export const BOSS_XP = 10; // a boss kill counts as 10 kills for tower experience
+export const KILL_XP = 2; // tower experience for a kill, shared by the towers that damaged the enemy
+export const BOSS_XP = 10; // ... and for a boss kill
 // Streak: every 5 waves in a row without losing a life adds +5% coins per kill, at most +25%.
 export const STREAK_STEP = 5;
 export const STREAK_BONUS = 0.05;
@@ -96,9 +98,9 @@ export interface TowerStats {
 export const TOWERS: Record<Kind, TowerStats> = {
   circle: { name: 'Pulse', attack: 'hits all in range', cost: 60, range: 1.5, rate: 0.8, damage: 10 },
   diamond: { name: 'Flame', attack: 'cone + burn', cost: 80, range: 1.5, rate: 5, damage: 1.6 },
-  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 2.5, rate: 2, damage: 5 },
+  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 2.5, rate: 2, damage: 7.5 },
   square: { name: 'Sniper', attack: 'long range, big hit', cost: 100, range: 4.9, rate: 0.5, damage: 21 },
-  star: { name: 'Poison', attack: 'stacking poison', cost: 70, range: 2.1, rate: 1, damage: 5.8 },
+  star: { name: 'Poison', attack: 'stacking poison', cost: 70, range: 2.1, rate: 1, damage: 7 },
   pentagon: { name: 'Piercer', attack: 'pierces enemies', cost: 45, range: 2.1, rate: 1.2, damage: 4.6 },
   hexagon: { name: 'Frost', attack: 'slows all in range', cost: 70, range: 1.5, rate: 1, damage: 5 },
   octagon: { name: 'Electric', attack: 'chain lightning', cost: 75, range: 2, rate: 0.9, damage: 8 },
@@ -256,7 +258,7 @@ export const ENEMIES: Record<Kind, EnemyBase> = {
   circle: { power: 'Regeneration', hp: 30, speed: 1.6, reward: 4, lives: 1, regen: 2 },
   diamond: { power: 'Shield', hp: 28, speed: 1.5, reward: 5, lives: 2, shield: 32 },
   triangle: { power: 'Speed', hp: 26, speed: 3.6, reward: 5, lives: 1 },
-  square: { power: 'Tank', hp: 210, speed: 0.95, reward: 8, lives: 3 },
+  square: { power: 'Tank', hp: 170, speed: 0.95, reward: 8, lives: 3 },
   star: { power: 'Armor', hp: 58, speed: 1.5, reward: 6, lives: 2, armor: 5 },
   pentagon: { power: 'Splitter', hp: 48, speed: 1.6, reward: 4, lives: 1 },
   hexagon: { power: 'Blink', hp: 40, speed: 1.7, reward: 6, lives: 2 },

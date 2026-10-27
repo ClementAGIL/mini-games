@@ -4,6 +4,7 @@ import {
   AURA_RANGE,
   BLINK_EVERY,
   BOSS_XP,
+  KILL_XP,
   FIRST_POWER,
   MINION_HP,
   PORTAL_EVERY,
@@ -173,10 +174,10 @@ export function removeDead(game: TdGame) {
   }
 }
 
-// A kill is worth 1 XP (a boss BOSS_XP), shared by the towers that damaged the enemy in proportion to their damage,
+// A kill is worth KILL_XP (a boss BOSS_XP), shared by the towers that damaged the enemy in proportion to their damage,
 // so towers wearing enemies down early on the path get experience too. Sold towers' shares are lost.
 function shareXp(game: TdGame, e: Enemy) {
-  const xp = e.boss ? BOSS_XP : 1;
+  const xp = e.boss ? BOSS_XP : KILL_XP;
   let total = 0;
   for (const amount of e.hits.values()) total += amount;
   if (total <= 0) return;

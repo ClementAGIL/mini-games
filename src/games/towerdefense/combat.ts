@@ -6,6 +6,7 @@ import {
   CHAIN_FALLOFF,
   CHAIN_GAP,
   OTHER_SHAPE_MULT,
+  POISON_DPS,
   POISON_STACKS,
   POISON_TIME,
   SAME_SHAPE_MULT,
@@ -137,9 +138,9 @@ export function updateBullets(game: TdGame, dt: number) {
   });
 }
 
-// Each Poison dart adds one stack (damage per second = dart damage), up to POISON_STACKS.
+// Each Poison dart adds one stack (damage per second = POISON_DPS × dart damage), up to POISON_STACKS.
 function addPoison(e: Enemy, dartDamage: number, tower: Tower) {
-  const dps = dartDamage * (1 + (tower.bonus.dot ?? 0)) * shapeMult('star', e.kind);
+  const dps = dartDamage * POISON_DPS * (1 + (tower.bonus.dot ?? 0)) * shapeMult('star', e.kind);
   e.poison = Math.min(e.poison + dps, dps * POISON_STACKS);
   e.poisonTime = POISON_TIME;
   e.poisonBy = tower;
