@@ -22,7 +22,22 @@ import { Director } from './director';
 import { onDeath, updateEnemies } from './enemies';
 import { dropLoot } from './loot';
 import { evolve, newWeapon, noMods, statValue } from './inventory';
-import type { Beam, Blast, Card, Enemy, Mine, Missile, OwnedWeapon, Pickup, Player, Ring, Shot } from './model';
+import type {
+  Beam,
+  Blast,
+  Bolt,
+  Card,
+  Enemy,
+  Mine,
+  Missile,
+  OwnedWeapon,
+  Pickup,
+  Player,
+  Ring,
+  Shot,
+  Strike,
+  Vortex,
+} from './model';
 import { weaponName } from './arsenal';
 import { updateWeapons } from './weapons';
 
@@ -33,7 +48,10 @@ export class Run {
   missiles: Missile[] = [];
   rings: Ring[] = [];
   mines: Mine[] = [];
+  strikes: Strike[] = [];
+  vortices: Vortex[] = [];
   beams: Beam[] = [];
+  bolts: Bolt[] = [];
   blasts: Blast[] = [];
   pickups: Pickup[] = [];
   weapons: OwnedWeapon[] = [newWeapon('dart')];
@@ -50,8 +68,9 @@ export class Run {
   fx = new Effects();
   grid = new SpatialGrid<Enemy>(64);
   private director = new Director();
-  private viewW = 800;
-  private viewH = 520;
+  /** Visible area in world units (spawns happen just outside it, saws bounce on it). */
+  viewW = 800;
+  viewH = 520;
 
   get dead() {
     return this.player.hp <= 0;
@@ -110,12 +129,12 @@ export class Run {
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + amount);
   }
 
-  /** Deals damage to `e`, credits `source`, kills it at 0 HP. */
-  damage(e: Enemy, amount: number, source: OwnedWeapon | null) {
+  /** Deals damage to `e`, credits `source`, kills it at 0 HP. A `quiet` hit (burning) does not flash. */
+  damage(e: Enemy, amount: number, source: OwnedWeapon | null, quiet = false) {
     if (e.hp <= 0) return;
     if (source) source.dealt += Math.min(e.hp, amount);
     e.hp -= amount;
-    e.flash = 0.08;
+    if (!quiet) e.flash = 0.08;
     if (e.hp <= 0) this.kill(e);
   }
 
@@ -206,6 +225,7 @@ export class Run {
     this.enemies = this.enemies.filter((e) => e.hp > 0);
     this.pickups = this.pickups.filter((k) => !k.taken);
     this.beams = this.beams.filter((b) => (b.life -= dt) > 0);
+    this.bolts = this.bolts.filter((b) => (b.life -= dt) > 0);
     this.blasts = this.blasts.filter((b) => (b.life -= dt) > 0);
   }
 }

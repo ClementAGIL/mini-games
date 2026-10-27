@@ -71,14 +71,29 @@ the top of the screen.
 
 ### Weapons (black, auto-fire)
 
-| Weapon | Shape              | Lv 1 → Lv 5                                                              | Evolves with | Evolution                                |
-| ------ | ------------------ | ------------------------------------------------------------------------ | ------------ | ---------------------------------------- |
-| Dart   | small triangle     | fires at the nearest enemy · 10 → 24 dmg, 1 → 3 darts, 0.8 → 0.6 s       | Haste        | **Storm**: 3 darts / 0.3 s               |
-| Orbit  | squares around you | contact damage · 8 → 24 dmg, 2 → 5 squares                               | Area         | **Halo**: 8 big squares                  |
-| Pulse  | expanding circle   | ring every 3 → 2.2 s, pushes enemies back · 15 → 44 dmg, radius 90 → 140 | Regen        | **Lifewave**: heals 0.5 HP per enemy hit |
-| Lance  | line               | piercing beam where you move · 20 → 56 dmg, 1 → 3 beams (front, back…)   | Pierce       | **Railgun**: 4 long beams                |
-| Mine   | filled square      | dropped where you stand, explodes on contact · 30 → 80 dmg               | Might        | **Minefield**: 3 mines / 0.7 s           |
-| Shard  | star               | bounces between enemies · 12 → 28 dmg, 2 → 7 bounces, 1 → 3 stars        | Speed        | **Comet**: 4 stars, 10 bounces           |
+17 weapons, **5 slots**. Level 1 → level 5, then an evolution once you have taken a card of its stat.
+
+| Weapon     | Shape                  | What it does (Lv 1 → Lv 5)                                                       | Evolves with | Evolution                                |
+| ---------- | ---------------------- | -------------------------------------------------------------------------------- | ------------ | ---------------------------------------- |
+| Dart       | small triangle         | fires at the nearest enemy · 15 → 36 dmg, 1 → 3 darts, 0.8 → 0.6 s               | Haste        | **Storm**: 3 darts / 0.3 s               |
+| Orbit      | squares around you     | contact damage · 8 → 24 dmg, 2 → 5 squares                                       | Area         | **Halo**: 8 big squares                  |
+| Pulse      | expanding circle       | ring every 3 → 2.2 s, pushes enemies back · 15 → 44 dmg, radius 90 → 140         | Regen        | **Lifewave**: heals 0.5 HP per enemy hit |
+| Lance      | line                   | piercing beam where you move · 20 → 56 dmg, 1 → 3 beams (front, back…)           | Pierce       | **Railgun**: 4 long beams                |
+| Mine       | filled square          | dropped where you stand, explodes on contact · 24 → 64 dmg                       | Might        | **Minefield**: 3 mines / 0.7 s           |
+| Shard      | star                   | bounces between enemies · 12 → 28 dmg, 2 → 7 bounces, 1 → 3 stars                | Speed        | **Comet**: 4 stars, 10 bounces           |
+| Boomerang  | wide V                 | thrown at the nearest enemy, comes back (hits on the way out and back) · 14 → 36 | Reach        | **Moonblade**: 4 boomerangs              |
+| Chain      | zigzag                 | lightning hits the nearest enemy and jumps 3 → 6 times · 16 → 38 dmg             | Luck         | **Tempest**: 4 bolts, 8 jumps            |
+| Flamer     | small orange triangles | short cone of flames, each sets enemies on fire for 2 s · 10 → 30 burn/s         | Might        | **Inferno**: 4 flames, longer cone       |
+| Saw        | gear                   | bounces on the screen edges for 3.5 s, re-hits every 0.4 s · 12 → 30 dmg         | Speed        | **Buzzsaw**: 4 big saws                  |
+| Frost      | snowflake              | blue ring that slows enemies by 40% for 2.5 s · 5 → 15 dmg, radius 100 → 165     | Area         | **Blizzard**: 70% slow, radius 220       |
+| Meteor     | falling circle         | lands on random enemies on screen after a 0.7 s warning · 32 → 72 dmg            | Luck         | **Starfall**: 5 meteors                  |
+| Whip       | arc                    | wide slash to one side (alternating), both sides from Lv 3 · 18 → 48 dmg         | Regen        | **Bloodlash**: 70 dmg, longer            |
+| Homing     | thin triangle + trail  | missile that seeks its target and explodes · 20 → 50 dmg                         | Luck         | **Swarm**: 5 missiles                    |
+| Black hole | spiral                 | appears on a nearby enemy for 3 s, pulls enemies in, hurts every 0.5 s           | Reach        | **Singularity**: bigger, stronger        |
+| Lighthouse | rotating line          | beams sweeping around you, re-hit every 0.5 s · 10 → 26 dmg, 1 → 3 beams         | Pierce       | **Beacon**: 4 long beams                 |
+| Shotgun    | fan of dots            | burst of 5 → 9 pellets at close range · 14 → 34 dmg each                         | Haste        | **Scattergun**: 12 pellets / 0.5 s       |
+
+Chilled enemies get a blue ring, burning ones a small flame. Bosses are not pulled by black holes.
 
 A level 5 weapon **evolves** as soon as you have taken at least one card of its stat.
 
@@ -106,23 +121,29 @@ Shows time, kills, level, and the damage dealt by each weapon. Restart with Ente
 
 ## Code layout
 
-| File           | Role                                                                   |
-| -------------- | ---------------------------------------------------------------------- |
-| `data.ts`      | Balance: player, difficulty growth, enemies, stats, rarities, drops    |
-| `arsenal.ts`   | Weapon tables (levels, evolutions) and final stats with stat bonuses   |
-| `model.ts`     | Shared types                                                           |
-| `game.ts`      | `Run`: state, update order, player, damage, XP, pickups                |
-| `director.ts`  | Spawning: rate, enemy mix, elites, bosses, recycling far enemies       |
-| `enemies.ts`   | Enemy creation and behaviors (lookup table), separation, death effects |
-| `weapons.ts`   | Firing of each weapon (lookup table)                                   |
-| `attacks.ts`   | Projectiles, rings, mines, orbit: movement and hits                    |
-| `inventory.ts` | Level-up cards, rarity roll with luck, evolutions                      |
-| `shapes.ts`    | Enemy and pickup shapes                                                |
-| `icons.ts`     | Stat and weapon icons (lookup tables)                                  |
-| `render.ts`    | The world: camera, grid, every object                                  |
-| `hud.ts`       | HUD: XP, HP, time, boss bar, inventory                                 |
-| `screens.ts`   | Level-up cards and game-over panels                                    |
-| `horde.ts`     | The scene: input, camera zoom, which screen is shown                   |
+| File             | Role                                                                   |
+| ---------------- | ---------------------------------------------------------------------- |
+| `data.ts`        | Balance: player, difficulty growth, enemies, stats, rarities, drops    |
+| `arsenal.ts`     | Weapon tables (levels, evolutions) and final stats with stat bonuses   |
+| `model.ts`       | Shared types                                                           |
+| `game.ts`        | `Run`: state, update order, player, damage, XP, pickups                |
+| `director.ts`    | Spawning: rate, enemy mix, elites, bosses, recycling far enemies       |
+| `enemies.ts`     | Enemy creation and behaviors (lookup table), separation, death effects |
+| `weapons.ts`     | Weapon timers and the firing lookup table                              |
+| `targeting.ts`   | Shared weapon helpers: final stats, nearest targets, geometry, blasts  |
+| `shooters.ts`    | Weapons that fire projectiles (Dart, Shard, Shotgun, Boomerang…)       |
+| `casters.ts`     | Weapons acting around you (Pulse, Frost, Lance, Whip, Chain, Mine…)    |
+| `projectiles.ts` | Flight and hits of each projectile kind (lookup table)                 |
+| `auras.ts`       | Always-on contact weapons: Orbit and Lighthouse                        |
+| `attacks.ts`     | Update order of attacks; rings, mines, meteors, black holes            |
+| `inventory.ts`   | Level-up cards, rarity roll with luck, evolutions                      |
+| `shapes.ts`      | Enemy and pickup shapes                                                |
+| `icons.ts`       | Stat and weapon icons (lookup tables)                                  |
+| `render.ts`      | The world: camera, grid, enemies, player                               |
+| `visuals.ts`     | Drawing of projectiles, rings, beams, bolts, blasts, zones             |
+| `hud.ts`         | HUD: XP, HP, time, boss bar, inventory                                 |
+| `screens.ts`     | Level-up cards and game-over panels                                    |
+| `horde.ts`       | The scene: input, camera zoom, which screen is shown                   |
 
 ## Design notes
 

@@ -8,7 +8,14 @@ const CARDS = 3;
 /** Share of stat cards among the possible picks: a stat is offered as often as one weapon option. */
 const STAT_OPTIONS = 4;
 
-export const newWeapon = (kind: WeaponKind): OwnedWeapon => ({ kind, level: 1, evolved: false, timer: 0, dealt: 0 });
+export const newWeapon = (kind: WeaponKind): OwnedWeapon => ({
+  kind,
+  level: 1,
+  evolved: false,
+  timer: 0,
+  shots: 0,
+  dealt: 0,
+});
 
 export const noMods = () => Object.fromEntries(STAT_KINDS.map((k) => [k, 0])) as Mods;
 

@@ -1,5 +1,5 @@
 // Icons of Polygon Horde: stats (filled with their color) and weapons (black, the shape they fire).
-import { circle, INK, line, poly, rect, regular, starPoints, triangle } from '../../engine/draw';
+import { circle, INK, line, poly, polyline, rect, regular, starPoints, triangle } from '../../engine/draw';
 import type { Vec } from '../../engine/math';
 import type { WeaponKind } from './arsenal';
 import { STATS, type StatKind } from './data';
@@ -69,6 +69,25 @@ export function drawStat(ctx: CanvasRenderingContext2D, stat: StatKind, x: numbe
   ctx.stroke();
 }
 
+/** A boomerang (wide V) centred on (x, y), turned by `rot`. */
+export function boomerangPoints(x: number, y: number, r: number, rot: number): Vec[] {
+  const pts = [
+    [-1, -0.3],
+    [0, 0.6],
+    [1, -0.3],
+    [0.75, -0.5],
+    [0, 0.15],
+    [-0.75, -0.5],
+  ];
+  const [c, s] = [Math.cos(rot), Math.sin(rot)];
+  return pts.map(([px, py]) => ({ x: x + (px * c - py * s) * r, y: y + (px * s + py * c) * r }));
+}
+
+/** A gear with 8 teeth, turned by `rot`. */
+export function gearPoints(x: number, y: number, r: number, rot: number): Vec[] {
+  return regular(x, y, r, 16, rot).map((p, i) => (i % 2 ? { x: x + (p.x - x) * 0.7, y: y + (p.y - y) * 0.7 } : p));
+}
+
 const WEAPON_ICONS: Record<WeaponKind, PathFn> = {
   dart: (ctx, x, y, r) => triangle(ctx, x, y, r * 0.8, -Math.PI / 4, true),
   orbit: (ctx, x, y, r) => {
@@ -85,6 +104,58 @@ const WEAPON_ICONS: Record<WeaponKind, PathFn> = {
   },
   mine: (ctx, x, y, r) => rect(ctx, x - r * 0.5, y - r * 0.5, r, r, true),
   shard: (ctx, x, y, r) => poly(ctx, starPoints(x, y, r * 0.85), true),
+  boomerang: (ctx, x, y, r) => poly(ctx, boomerangPoints(x, y, r, 0), true),
+  chain: (ctx, x, y, r) =>
+    polyline(ctx, [
+      { x: x - r * 0.3, y: y - r },
+      { x: x + r * 0.3, y: y - r * 0.2 },
+      { x: x - r * 0.3, y: y + r * 0.2 },
+      { x: x + r * 0.3, y: y + r },
+    ]),
+  flamer: (ctx, x, y, r) => {
+    for (const [dx, dy] of [
+      [-0.4, 0.3],
+      [0.1, -0.2],
+      [0.5, 0.3],
+    ])
+      triangle(ctx, x + dx * r, y + dy * r, r * 0.35, -Math.PI / 2, true);
+  },
+  saw: (ctx, x, y, r) => poly(ctx, gearPoints(x, y, r * 0.9, 0), true),
+  frost: (ctx, x, y, r) => {
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI;
+      line(ctx, x - Math.cos(a) * r, y - Math.sin(a) * r, x + Math.cos(a) * r, y + Math.sin(a) * r);
+    }
+  },
+  meteor: (ctx, x, y, r) => {
+    circle(ctx, x + r * 0.3, y + r * 0.3, r * 0.45, true);
+    line(ctx, x - r * 0.9, y - r * 0.3, x, y + r * 0.1);
+    line(ctx, x - r * 0.3, y - r * 0.9, x + r * 0.1, y);
+  },
+  whip: (ctx, x, y, r) => {
+    ctx.beginPath();
+    ctx.arc(x - r * 0.4, y + r * 0.6, r * 1.1, -Math.PI / 2, 0.2);
+    ctx.stroke();
+  },
+  homing: (ctx, x, y, r) => {
+    triangle(ctx, x + r * 0.3, y - r * 0.3, r * 0.55, -Math.PI / 4, true);
+    line(ctx, x - r * 0.9, y + r * 0.9, x - r * 0.2, y + r * 0.2);
+  },
+  blackhole: (ctx, x, y, r) => {
+    circle(ctx, x, y, r * 0.4, true);
+    ctx.beginPath();
+    ctx.arc(x, y, r * 0.85, 0, Math.PI * 1.4);
+    ctx.stroke();
+  },
+  lighthouse: (ctx, x, y, r) => {
+    circle(ctx, x - r * 0.5, y + r * 0.5, r * 0.3, true);
+    line(ctx, x - r * 0.5, y + r * 0.5, x + r, y - r);
+  },
+  shotgun: (ctx, x, y, r) => {
+    for (const a of [-0.5, 0, 0.5])
+      circle(ctx, x + Math.cos(a - 0.8) * r * 0.7, y + Math.sin(a - 0.8) * r * 0.7, r * 0.2, true);
+    circle(ctx, x - r * 0.5, y + r * 0.5, r * 0.2, true);
+  },
 };
 
 /** Black icon of a weapon (the shape it fires). */

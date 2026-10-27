@@ -1,12 +1,29 @@
 // Weapon tables for Polygon Horde (stats per level, evolutions) and the final stats once stat bonuses are applied.
 import type { StatKind } from './data';
 
-export type WeaponKind = 'dart' | 'orbit' | 'pulse' | 'lance' | 'mine' | 'shard';
+export type WeaponKind =
+  | 'dart'
+  | 'orbit'
+  | 'pulse'
+  | 'lance'
+  | 'mine'
+  | 'shard'
+  | 'boomerang'
+  | 'chain'
+  | 'flamer'
+  | 'saw'
+  | 'frost'
+  | 'meteor'
+  | 'whip'
+  | 'homing'
+  | 'blackhole'
+  | 'lighthouse'
+  | 'shotgun';
 
 /**
- * One level of a weapon. `size` is the projectile radius (Dart, Shard), the orbit or pulse radius, the beam length
- * (Lance) or the blast radius (Mine). `extra` is pierce (Dart) or bounces (Shard). For Orbit, `cooldown` is the delay
- * before a square can hit the same enemy again.
+ * One level of a weapon. `size` is a radius or a length depending on the weapon (projectile, orbit, ring, beam, blast,
+ * range); `extra` is pierce, bounces or jumps. For contact weapons (Orbit, Lighthouse) `cooldown` is the delay before
+ * the same enemy can be hit again. Flamer `damage` is burn damage per second.
  */
 export interface WeaponStats {
   damage: number;
@@ -40,8 +57,8 @@ export const WEAPONS: Record<WeaponKind, WeaponDef> = {
     text: 'Fires at the nearest enemy',
     labels: ['Darts', '', 'Pierce'],
     pierce: true,
-    levels: [s(10, 0.8, 1, 5), s(14, 0.8, 1, 5), s(14, 0.7, 2, 5), s(20, 0.7, 2, 6, 1), s(24, 0.6, 3, 6, 1)],
-    evo: { stat: 'haste', name: 'Storm', stats: s(26, 0.3, 3, 6, 2) },
+    levels: [s(15, 0.8, 1, 5), s(21, 0.8, 1, 5), s(21, 0.7, 2, 5), s(30, 0.7, 2, 6, 1), s(36, 0.6, 3, 6, 1)],
+    evo: { stat: 'haste', name: 'Storm', stats: s(39, 0.3, 3, 6, 2) },
   },
   orbit: {
     name: 'Orbit',
@@ -72,8 +89,8 @@ export const WEAPONS: Record<WeaponKind, WeaponDef> = {
     text: 'Dropped where you stand, explodes',
     labels: ['Mines', 'Blast', ''],
     pierce: false,
-    levels: [s(30, 1.5, 1, 60), s(40, 1.4, 1, 65), s(50, 1.3, 1, 70), s(65, 1.2, 2, 75), s(80, 1, 2, 85)],
-    evo: { stat: 'damage', name: 'Minefield', stats: s(110, 0.7, 3, 100) },
+    levels: [s(24, 1.5, 1, 60), s(32, 1.4, 1, 65), s(40, 1.3, 1, 70), s(52, 1.2, 2, 75), s(64, 1, 2, 85)],
+    evo: { stat: 'damage', name: 'Minefield', stats: s(88, 0.7, 3, 100) },
   },
   shard: {
     name: 'Shard',
@@ -82,6 +99,94 @@ export const WEAPONS: Record<WeaponKind, WeaponDef> = {
     pierce: true,
     levels: [s(12, 2, 1, 7, 2), s(15, 1.9, 1, 7, 3), s(18, 1.8, 2, 7, 4), s(22, 1.6, 2, 8, 5), s(28, 1.4, 3, 8, 7)],
     evo: { stat: 'speed', name: 'Comet', stats: s(40, 1, 4, 10, 10) },
+  },
+  boomerang: {
+    name: 'Boomerang',
+    text: 'Thrown out, comes back, hits twice',
+    labels: ['Boomerangs', 'Range', ''],
+    pierce: false,
+    levels: [s(14, 1.6, 1, 170), s(18, 1.5, 1, 180), s(22, 1.4, 2, 190), s(28, 1.3, 2, 200), s(36, 1.2, 3, 220)],
+    evo: { stat: 'magnet', name: 'Moonblade', stats: s(50, 0.9, 4, 260) },
+  },
+  chain: {
+    name: 'Chain',
+    text: 'Lightning jumping between enemies',
+    labels: ['Bolts', '', 'Jumps'],
+    pierce: true,
+    levels: [s(16, 1.4, 1, 0, 3), s(20, 1.3, 1, 0, 4), s(24, 1.2, 2, 0, 4), s(30, 1.1, 2, 0, 5), s(38, 1, 3, 0, 6)],
+    evo: { stat: 'luck', name: 'Tempest', stats: s(55, 0.7, 4, 0, 8) },
+  },
+  flamer: {
+    name: 'Flamer',
+    text: 'Short cone of fire, burns over time',
+    labels: ['Flames', 'Range', ''],
+    pierce: false,
+    levels: [s(10, 0.25, 1, 110), s(14, 0.22, 2, 120), s(18, 0.2, 2, 130), s(24, 0.18, 3, 140), s(30, 0.15, 3, 160)],
+    evo: { stat: 'damage', name: 'Inferno', stats: s(50, 0.12, 4, 190) },
+  },
+  saw: {
+    name: 'Saw',
+    text: 'Gear bouncing on the screen edges',
+    labels: ['Saws', 'Size', ''],
+    pierce: false,
+    levels: [s(12, 3, 1, 9), s(15, 2.8, 1, 10), s(18, 2.6, 2, 10), s(23, 2.4, 2, 11), s(30, 2.2, 3, 12)],
+    evo: { stat: 'speed', name: 'Buzzsaw', stats: s(45, 1.8, 4, 15) },
+  },
+  frost: {
+    name: 'Frost',
+    text: 'Icy ring that slows enemies',
+    labels: ['', 'Radius', ''],
+    pierce: false,
+    levels: [s(5, 4, 1, 100), s(7, 3.7, 1, 115), s(9, 3.4, 1, 130), s(12, 3.1, 1, 145), s(15, 2.8, 1, 165)],
+    evo: { stat: 'area', name: 'Blizzard', stats: s(25, 2.2, 1, 220) },
+  },
+  meteor: {
+    name: 'Meteor',
+    text: 'Falls on enemies after a warning',
+    labels: ['Meteors', 'Blast', ''],
+    pierce: false,
+    levels: [s(32, 2.5, 1, 50), s(40, 2.4, 1, 55), s(48, 2.3, 2, 60), s(60, 2.1, 2, 65), s(72, 1.9, 3, 75)],
+    evo: { stat: 'luck', name: 'Starfall', stats: s(104, 1.4, 5, 85) },
+  },
+  whip: {
+    name: 'Whip',
+    text: 'Wide slash to your sides',
+    labels: ['Sides', 'Length', ''],
+    pierce: false,
+    levels: [s(18, 1.3, 1, 110), s(24, 1.25, 1, 120), s(30, 1.2, 2, 130), s(38, 1.1, 2, 140), s(48, 1, 2, 160)],
+    evo: { stat: 'regen', name: 'Bloodlash', stats: s(70, 0.8, 2, 190) },
+  },
+  homing: {
+    name: 'Homing',
+    text: 'Seeking missile that explodes',
+    labels: ['Missiles', 'Blast', ''],
+    pierce: false,
+    levels: [s(20, 1.8, 1, 30), s(26, 1.7, 1, 32), s(32, 1.6, 2, 34), s(40, 1.5, 2, 38), s(50, 1.4, 3, 42)],
+    evo: { stat: 'luck', name: 'Swarm', stats: s(60, 0.9, 5, 48) },
+  },
+  blackhole: {
+    name: 'Black hole',
+    text: 'Pulls enemies in and crushes them',
+    labels: ['', 'Radius', ''],
+    pierce: false,
+    levels: [s(8, 6, 1, 80), s(10, 5.6, 1, 90), s(13, 5.2, 1, 100), s(16, 4.8, 1, 110), s(20, 4.4, 1, 125)],
+    evo: { stat: 'magnet', name: 'Singularity', stats: s(32, 3.6, 1, 160) },
+  },
+  lighthouse: {
+    name: 'Lighthouse',
+    text: 'Beam sweeping around you',
+    labels: ['Beams', 'Length', ''],
+    pierce: false,
+    levels: [s(10, 0.5, 1, 150), s(13, 0.5, 1, 165), s(16, 0.45, 2, 180), s(20, 0.45, 2, 195), s(26, 0.4, 3, 210)],
+    evo: { stat: 'pierce', name: 'Beacon', stats: s(40, 0.3, 4, 260) },
+  },
+  shotgun: {
+    name: 'Shotgun',
+    text: 'Burst of pellets at close range',
+    labels: ['Pellets', 'Range', 'Pierce'],
+    pierce: true,
+    levels: [s(14, 1.2, 5, 160), s(18, 1.15, 6, 170), s(22, 1.1, 7, 180), s(28, 1, 8, 190), s(34, 0.9, 9, 200)],
+    evo: { stat: 'haste', name: 'Scattergun', stats: s(44, 0.5, 12, 220) },
   },
 };
 

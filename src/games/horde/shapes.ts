@@ -1,9 +1,10 @@
 // Polygon Horde shapes: enemies (colored by role) and pickups. Stat and weapon icons are in icons.ts.
-import { bar, circle, INK, line, PAPER, poly, regular, starPoints } from '../../engine/draw';
+import { bar, circle, INK, line, PAPER, poly, regular, starPoints, triangle } from '../../engine/draw';
 import type { Vec } from '../../engine/math';
 import { ENEMIES, type Shape } from './data';
 import { drawStat } from './icons';
 import type { Enemy, Pickup } from './model';
+import { FIRE_COLOR, FROST_COLOR } from './visuals';
 
 const MAGNET_COLOR = '#d32f2f';
 const CHEST_COLOR = '#ffca28';
@@ -31,6 +32,13 @@ function shapePoints(shape: Shape, x: number, y: number, r: number, rot: number)
   }
 }
 
+/** A colored outline circle (status rings). */
+function ring(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string) {
+  ctx.strokeStyle = color;
+  circle(ctx, x, y, r);
+  ctx.strokeStyle = INK;
+}
+
 /** Fills with `color`, then outlines in black. */
 function paint(ctx: CanvasRenderingContext2D, pts: Vec[] | null, x: number, y: number, r: number, color: string) {
   for (const fill of [true, false]) {
@@ -52,6 +60,12 @@ export function drawEnemy(ctx: CanvasRenderingContext2D, e: Enemy, rot: number, 
     else circle(ctx, x, y, e.r + 5);
   }
   if (e.kind === 'bomber') line(ctx, x, y - e.r, x + e.r * 0.5, y - e.r * 1.6);
+  if (e.slowLeft > 0) ring(ctx, x, y, e.r + 3, FROST_COLOR);
+  if (e.burnLeft > 0) {
+    ctx.fillStyle = FIRE_COLOR;
+    triangle(ctx, x, y - e.r - 4, 4, -Math.PI / 2, true);
+    ctx.fillStyle = INK;
+  }
   if (!e.boss && e.hp < e.maxHp) bar(ctx, x - e.r, y - e.r - 9, e.r * 2, e.hp / e.maxHp);
 }
 

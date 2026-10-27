@@ -57,7 +57,12 @@ export function makeEnemy(kind: EnemyKind, pos: Vec, t: number, opts: { elite?: 
     timer: rand(0.5, 1.5) * (kind === 'shooter' ? SHOOTER_RELOAD : DASH_REST),
     aim: { x: 0, y: 0 },
     fuse: -1,
-    orbitAt: -99,
+    hitAt: {},
+    slow: 0,
+    slowLeft: 0,
+    burn: 0,
+    burnLeft: 0,
+    burnBy: null,
     flash: 0,
   };
   return e;
@@ -198,7 +203,13 @@ export function updateEnemies(run: Run, dt: number) {
   const keep = Math.pow(KNOCK_KEEP, dt);
   for (const e of run.enemies) {
     e.flash -= dt;
-    BEHAVIOR[e.kind](e, run, dt);
+    // A chilled enemy lives slower: it moves, aims and reloads at a reduced pace.
+    BEHAVIOR[e.kind](e, run, e.slowLeft > 0 ? dt * (1 - e.slow) : dt);
+    if ((e.slowLeft -= dt) <= 0) e.slow = 0;
+    if (e.burnLeft > 0) {
+      e.burnLeft -= dt;
+      run.damage(e, e.burn * dt, e.burnBy, true);
+    } else e.burn = 0;
     e.pos.x += e.knock.x * dt;
     e.pos.y += e.knock.y * dt;
     e.knock.x *= keep;

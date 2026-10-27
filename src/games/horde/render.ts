@@ -1,11 +1,9 @@
 // Draws the Polygon Horde world through a camera centred on the player: dot grid, loot, attacks, enemies, player.
-import { bar, circle, INK, line, LINE, poly, rect, starPoints, triangle } from '../../engine/draw';
-import { orbitHalf, orbitSquares } from './attacks';
+import { bar, circle, INK, line, LINE } from '../../engine/draw';
 import { DASH_SPEED, DASH_TIME, ENEMIES, PLAYER_R } from './data';
 import type { Run } from './game';
-import type { Missile } from './model';
 import { drawEnemy, drawPickup } from './shapes';
-import { statsOf } from './weapons';
+import { drawAttacks } from './visuals';
 
 const GRID = 64; // world units between background dots
 const DOT_COLOR = '#ccc';
@@ -55,43 +53,6 @@ function drawEnemies(ctx: CanvasRenderingContext2D, run: Run) {
       ctx.globalAlpha = 1;
     }
     if (run.onScreen(e.pos)) drawEnemy(ctx, e, Math.atan2(p.y - e.pos.y, p.x - e.pos.x), run.time);
-  }
-}
-
-function drawMissile(ctx: CanvasRenderingContext2D, m: Missile, time: number) {
-  if (!m.bounce) return triangle(ctx, m.pos.x, m.pos.y, m.r, Math.atan2(m.vel.y, m.vel.x), true);
-  ctx.save();
-  ctx.translate(m.pos.x, m.pos.y);
-  ctx.rotate(time * 8);
-  poly(ctx, starPoints(0, 0, m.r), true);
-  ctx.restore();
-}
-
-function drawAttacks(ctx: CanvasRenderingContext2D, run: Run) {
-  const p = run.player.pos;
-  const lw = ctx.lineWidth;
-  for (const m of run.mines) rect(ctx, m.pos.x - 5, m.pos.y - 5, 10, 10, m.arm <= 0);
-  for (const b of run.blasts) {
-    const fade = Math.min(1, b.life * 3);
-    ctx.fillStyle = b.color;
-    ctx.globalAlpha = fade * 0.3;
-    circle(ctx, b.pos.x, b.pos.y, b.r, true);
-    ctx.globalAlpha = fade;
-    circle(ctx, b.pos.x, b.pos.y, b.r);
-  }
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = INK;
-  for (const r of run.rings) circle(ctx, p.x, p.y, r.r);
-  for (const b of run.beams) {
-    ctx.lineWidth = b.width * (b.life / 0.15);
-    line(ctx, b.from.x, b.from.y, b.to.x, b.to.y);
-  }
-  ctx.lineWidth = lw;
-  for (const m of run.missiles) drawMissile(ctx, m, run.time);
-  const half = orbitHalf(run);
-  for (const w of run.weapons) {
-    if (w.kind !== 'orbit') continue;
-    for (const c of orbitSquares(run, statsOf(run, w))) rect(ctx, c.x - half, c.y - half, half * 2, half * 2, true);
   }
 }
 

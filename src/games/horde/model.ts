@@ -29,7 +29,12 @@ export interface Enemy {
   timer: number; // reload / dash / phase timer, depending on the kind
   aim: Vec; // dash direction
   fuse: number; // bombers: seconds before the blast, < 0 when not lit
-  orbitAt: number; // run time of the last Orbit hit
+  hitAt: Partial<Record<WeaponKind, number>>; // run time of the last hit by a contact weapon (Orbit, Saw, Lighthouse)
+  slow: number; // share of speed lost while chilled (Frost)
+  slowLeft: number;
+  burn: number; // damage per second while burning (Flamer)
+  burnLeft: number;
+  burnBy: OwnedWeapon | null;
   flash: number; // seconds of hit flash left
 }
 
@@ -46,30 +51,57 @@ export interface OwnedWeapon {
   level: number;
   evolved: boolean;
   timer: number; // seconds until it fires again
+  shots: number; // times it fired (the Whip alternates sides)
   dealt: number; // total damage, for the game-over stats
 }
 
-/** A Dart or Shard in flight. `left` = enemies it can still hit after the current one. */
+export type MissileKind = 'dart' | 'shard' | 'pellet' | 'boomerang' | 'saw' | 'homing' | 'flame';
+
+/** A projectile in flight. `left` = enemies it can still hit after the current one. */
 export interface Missile {
+  kind: MissileKind;
   weapon: OwnedWeapon;
   pos: Vec;
   vel: Vec;
   r: number;
   damage: number;
   left: number;
-  bounce: boolean; // Shard: jumps to the next enemy instead of flying on
   hit: Set<Enemy>;
   life: number;
+  age: number;
+  target: Enemy | null; // homing missiles
+  range: number; // boomerang: distance before it turns back; homing: blast radius; flame: burn time
 }
 
-/** A Pulse ring, centered on the player, growing to `maxR`. */
+/** A Pulse or Frost ring, centered on the player, growing to `maxR`. */
 export interface Ring {
   weapon: OwnedWeapon;
   r: number;
   maxR: number;
   damage: number;
   hit: Set<Enemy>;
-  heals: boolean;
+  heals: boolean; // Lifewave
+  slow: number; // Frost: share of speed taken from the enemies it touches
+  push: number; // knockback speed
+}
+
+/** A Meteor about to land: a warning circle, then a blast. */
+export interface Strike {
+  weapon: OwnedWeapon;
+  pos: Vec;
+  delay: number;
+  radius: number;
+  damage: number;
+}
+
+/** A Black hole: pulls enemies in and hurts them every `TICK`. */
+export interface Vortex {
+  weapon: OwnedWeapon;
+  pos: Vec;
+  life: number;
+  radius: number;
+  damage: number;
+  tick: number;
 }
 
 export interface Mine {
@@ -81,11 +113,16 @@ export interface Mine {
   radius: number;
 }
 
-/** Short-lived drawings: Lance beams and explosions. */
+/** Short-lived drawings: Lance / Whip beams, Chain bolts and explosions. */
 export interface Beam {
   from: Vec;
   to: Vec;
   width: number;
+  life: number;
+}
+
+export interface Bolt {
+  pts: Vec[];
   life: number;
 }
 
