@@ -47,6 +47,43 @@ export const CHAIN_GAP = 1.5;
 // Summoner minions: share of the summoner's max HP.
 export const MINION_HP = 0.15;
 
+// ---------- boss powers ----------
+// Each boss type has one extra power. Auras only affect normal enemies (not other bosses) and never stack.
+export const AURA_RANGE = 2; // tiles around the boss
+export const HASTE = 0.4; // Triangle boss: +40% speed
+export const HEAL_AURA = 0.05; // Circle boss: share of max HP healed per second
+// Diamond and Star bosses pulse instead of buffing all the time, so an enemy staying in the zone is not
+// protected forever: a pulse gives a shield (no refill until the next pulse) or armor for a short time.
+export const PULSE_EVERY = 5;
+export const AURA_SHIELD = 0.5; // share of the enemy's max HP
+export const AURA_ARMOR_TIME = 2.5; // seconds; the armor equals a normal Star's at that wave
+export const TAUNT_RANGE = 3; // Square boss: towers this close must target it
+export const STUN_RANGE = 1.5; // Hexagon boss: towers this close to where it lands stop...
+export const STUN_TIME = 2; // ...for this long
+export const PORTAL_EVERY = 6; // Octagon boss: seconds between two full enemies brought in
+export const FIRST_POWER = 2; // seconds after a boss appears before its first pulse or portal
+
+export const BOSS_POWER: Record<Kind, string> = {
+  circle: 'Healing aura',
+  diamond: 'Shield pulse',
+  triangle: 'Haste aura',
+  square: 'Taunt',
+  star: 'Armor pulse',
+  pentagon: 'Swarm',
+  hexagon: 'Stun',
+  octagon: 'Portal',
+};
+
+/** Radius of the zone drawn around a boss, for the powers that have one. */
+export const BOSS_ZONE: Partial<Record<Kind, number>> = {
+  circle: AURA_RANGE,
+  diamond: AURA_RANGE,
+  triangle: AURA_RANGE,
+  square: TAUNT_RANGE,
+  star: AURA_RANGE,
+  pentagon: AURA_RANGE,
+};
+
 export interface TowerStats {
   name: string;
   attack: string;

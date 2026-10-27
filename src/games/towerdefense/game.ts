@@ -20,6 +20,7 @@ import {
   type Bonus,
   type Kind,
 } from './data';
+import { updateBossAuras } from './bosses';
 import { removeDead, updateEnemies, updateSpawners } from './enemies';
 import {
   AREA_TOWERS,
@@ -137,6 +138,7 @@ export class TdGame {
       bonus: {},
       partners: 0,
       damageDone: 0,
+      stun: 0,
     };
     this.towers.push(tower);
     this.refreshCombos();
@@ -246,6 +248,7 @@ export class TdGame {
     if (this.waveTimer <= 0) this.startWave();
 
     updateSpawners(this, dt);
+    updateBossAuras(this, dt);
     updateEnemies(this, dt);
     for (const t of this.towers) updateTower(this, t, dt);
     updateBullets(this, dt);

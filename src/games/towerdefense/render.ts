@@ -3,7 +3,7 @@
 import { circle, INK, line, PAPER, polyline, rect, text } from '../../engine/draw';
 import type { Vec } from '../../engine/math';
 import { FLAME_CONE } from './combat';
-import { CURVE_LEVELS, enemyColor, towerColor, towerStats, xpNeeded, type Kind } from './data';
+import { BOSS_ZONE, CURVE_LEVELS, enemyColor, towerColor, towerStats, xpNeeded, type Kind } from './data';
 import type { TdGame } from './game';
 import { AREA_TOWERS, type Enemy, type Fx, type Tower } from './model';
 import { drawBuildPreview, drawNextWave, drawNotes } from './overlays';
@@ -36,6 +36,7 @@ export function drawWorld(ctx: CanvasRenderingContext2D, game: TdGame, view: Map
   drawMap(ctx, game, view, px);
   for (const tw of game.towers) drawTower(ctx, tw, px({ x: tw.tx + 0.5, y: tw.ty + 0.5 }), t);
   if (ui.selected) drawSelection(ctx, ui.selected, px, t);
+  for (const e of game.enemies) if (e.boss) drawBossZone(ctx, e, px(e.pos), t);
   for (const e of game.enemies) drawEnemy(ctx, e, px(e.pos), t, e === ui.selectedEnemy);
   drawProjectiles(ctx, game, px, t);
   for (const f of game.fx) drawFx(ctx, f, px, t);
@@ -88,6 +89,24 @@ function drawTower(ctx: CanvasRenderingContext2D, tw: Tower, c: Vec, t: number) 
   const small = Math.max(7, t * 0.32);
   if (!AREA_TOWERS.includes(tw.kind)) text(ctx, MODE_LETTER[tw.mode], c.x - t * 0.38, c.y - t * 0.36, small);
   if (tw.partners > 0) star(ctx, c.x + t * 0.36, c.y - t * 0.36, t * 0.17);
+  if (tw.stun > 0) {
+    const s = t * 0.45;
+    line(ctx, c.x - s, c.y - s, c.x + s, c.y + s);
+    line(ctx, c.x - s, c.y + s, c.x + s, c.y - s);
+  }
+}
+
+/** Thin dashed circle in the boss's color showing where its power works. */
+function drawBossZone(ctx: CanvasRenderingContext2D, e: Enemy, c: Vec, t: number) {
+  const zone = BOSS_ZONE[e.kind];
+  if (!zone) return;
+  ctx.strokeStyle = enemyColor(e.kind);
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  circle(ctx, c.x, c.y, zone * t);
+  ctx.setLineDash([]);
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 2;
 }
 
 function drawSelection(ctx: CanvasRenderingContext2D, s: Tower, px: ToScreen, t: number) {
@@ -98,10 +117,17 @@ function drawSelection(ctx: CanvasRenderingContext2D, s: Tower, px: ToScreen, t:
   rect(ctx, c.x - t / 2, c.y - t / 2, t, t);
 }
 
-/** Shape (dashed when slowed, dot when poisoned), HP and shield bars, dashed ring when selected. */
+/**
+ * Shape (dashed when slowed, thick outline with boss armor, dot when poisoned), outer ring with a boss shield,
+ * HP and shield bars, dashed ring when selected.
+ */
 function drawEnemy(ctx: CanvasRenderingContext2D, e: Enemy, c: Vec, t: number, selected: boolean) {
   const r = t * (e.boss ? 0.5 : e.small ? 0.2 : 0.3);
-  ctx.lineWidth = e.boss ? 3 : 2;
+  if (e.auraShield > 0) {
+    ctx.lineWidth = 1;
+    circle(ctx, c.x, c.y, r + 3);
+  }
+  ctx.lineWidth = e.boss || e.auraArmorTime > 0 ? 3 : 2;
   if (e.slowTime > 0) ctx.setLineDash([2, 2]);
   drawShape(ctx, e.kind, c.x, c.y, r, enemyColor(e.kind));
   ctx.setLineDash([]);

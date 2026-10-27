@@ -4,6 +4,7 @@ import { fitSize, text } from '../../engine/draw';
 import { clamp, type Rect } from '../../engine/math';
 import { drawButton, type RectButton } from '../../engine/ui';
 import {
+  BOSS_POWER,
   COMBO_STAT_LABEL,
   comboPartners,
   ENEMIES,
@@ -205,7 +206,8 @@ function partnerNames(kind: Kind) {
 
 function enemyLines(e: Enemy): string[] {
   const power = ENEMIES[e.kind].power;
-  const title = `${e.boss ? 'BOSS · ' : ''}${e.small ? `${power} minion` : power} (wave ${e.wave})`;
+  const boss = e.boss ? `BOSS · ${BOSS_POWER[e.kind]} · ` : '';
+  const title = `${boss}${e.small ? `${power} minion` : power} (wave ${e.wave})`;
   const hp = `HP ${compact(Math.ceil(e.hp))}/${compact(Math.ceil(e.maxHp))} · speed ${e.speed.toFixed(1)}`;
   const powers = [
     e.maxShield > 0 && `shield ${compact(Math.ceil(e.shield))}/${compact(Math.ceil(e.maxShield))}`,
@@ -214,6 +216,10 @@ function enemyLines(e: Enemy): string[] {
     e.splits > 0 && `splits into ${e.splits}`,
     e.blink > 0 && `blinks ${e.blink.toFixed(1)} tiles`,
     e.summon > 0 && `minion every ${e.summon.toFixed(1)}s`,
+    e.auraShield > 0 && `boss shield ${compact(Math.ceil(e.auraShield))}`,
+    e.auraArmorTime > 0 && `boss armor ${e.auraArmor.toFixed(1)}`,
+    e.haste > 0 && `hasted`,
+    e.heal > 0 && `healed`,
     `costs ${e.lives} ♥`,
   ].filter(Boolean);
   return [title, hp, powers.join(' · ')];

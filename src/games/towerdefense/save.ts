@@ -7,7 +7,7 @@ import type { TdGame } from './game';
 import type { Enemy, GameStats, QueuedEnemy, Spawner, TargetMode, Tower } from './model';
 
 const KEY = 'towerdefense.save';
-const VERSION = 2; // bump when the saved shape changes: older saves are then ignored
+const VERSION = 3; // bump when the saved shape changes: older saves are then ignored
 
 type SavedTower = Omit<Tower, 'bonus' | 'partners'>;
 type SavedEnemy = Omit<Enemy, 'lastTower' | 'burnBy' | 'poisonBy' | 'lastHit'> & {

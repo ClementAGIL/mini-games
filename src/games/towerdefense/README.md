@@ -52,7 +52,28 @@ Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own 
   Early bosses are weaker: 60% of that strength at wave 5, 80% at wave 10, full strength from wave 15.
   A Pentagon boss splits into 4 regular splitters; an Octagon boss summons twice as often.
 - Damage over time (Flame burn, Poison) ignores armor, which is why Poison counters Armor.
-  On the map, a slowed enemy has a dashed outline and a poisoned one a dot in its center.
+
+### Boss powers
+
+Each boss also has one **boss power**. A dashed circle in the boss's color shows its zone (2 tiles, 3 for the Square).
+Auras only affect **normal enemies** (split copies and minions included, other bosses not), and two bosses of the same
+type don't stack.
+
+| Boss     | Power            | Effect                                                                                                                                           |
+| -------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Triangle | **Haste aura**   | Normal enemies within 2 tiles move **+40% faster**.                                                                                              |
+| Circle   | **Healing aura** | Normal enemies within 2 tiles heal **5% of their max HP per second** (on top of their own regeneration).                                         |
+| Diamond  | **Shield pulse** | Every **5 s**, normal enemies within 2 tiles get a shield worth **50% of their max HP**. It absorbs hits first and never refills between pulses. |
+| Star     | **Armor pulse**  | Every **5 s**, normal enemies within 2 tiles get the armor of a normal Star of that wave for **2.5 s** (so half of the time).                    |
+| Square   | **Taunt**        | Towers within **3 tiles** must target it (Pulse and Frost hit everything anyway; Electric still chains from it).                                 |
+| Hexagon  | **Stun**         | Each time it blinks, towers within **1.5 tiles** of where it lands **stop for 2 s** (drawn with an X).                                           |
+| Pentagon | **Swarm**        | While it lives, every normal enemy dying within 2 tiles of it leaves **1 small copy** (copies and minions don't).                                |
+| Octagon  | **Portal**       | Every **6 s** it brings in a **full normal enemy** of a random unlocked type just behind itself (normal coins when killed).                      |
+
+The first pulse or portal comes 2 s after the boss appears. On the map, an enemy with a boss shield has a thin outer
+ring and one with boss armor a thick outline; tapping it lists the boss shield, boss armor, hasted and healed.
+On the map, a slowed enemy has a dashed outline and a poisoned one a dot in its center.
+
 - **Tap an enemy** to see its HP, speed, power values (shield, regen, armor, splits, blink, summon) and lives cost.
 
 ## Targeting
@@ -171,12 +192,15 @@ Every tower kind is in 2 combos:
 
 | File              | Role                                                                                                       |
 | ----------------- | ---------------------------------------------------------------------------------------------------------- |
-| `data.ts`         | **Balance tables**: towers, enemies, combos, upgrade/XP costs, economy (streak, interest, heal), colors.   |
+| `data.ts`         | **Balance tables**: towers, enemies, boss powers, combos, upgrade/XP costs, economy, colors.               |
 | `waves.ts`        | **Wave schedule**: timing, size and mix, enemy stat growth, bosses, the spawn queue of a wave.             |
 | `model.ts`        | Shared types (Enemy, Tower, projectiles, effects, stats).                                                  |
 | `game.ts`         | Game state, player actions (build, upgrade, sell, targeting), combos, waves, economy; `simulate(dt)`.      |
 | `enemies.ts`      | Enemy life cycle: spawning, burn/poison/regen/shield, movement, blink, summon, leaking, deaths and splits. |
-| `combat.ts`       | Tower attacks (one function per tower in `ATTACKS`), targeting, projectiles, damage, armor and shields.    |
+|                   | Also the event boss powers: stun (on blink), portal, swarm (on death).                                     |
+| `bosses.ts`       | Boss auras: haste and healing (every step), shield and armor pulses.                                       |
+| `combat.ts`       | Tower attacks (one function per tower in `ATTACKS`), targeting (and taunt), projectiles, damage, armor and |
+|                   | shields.                                                                                                   |
 | `save.ts`         | Save / resume in localStorage.                                                                             |
 | `render.ts`       | Drawing of the map, towers, enemies, projectiles and effects.                                              |
 | `overlays.ts`     | Build preview with combo bonuses, next-wave strip, notes, game-over summary.                               |

@@ -10,6 +10,7 @@ import {
   POISON_TIME,
   SAME_SHAPE_MULT,
   SLOW_TIME,
+  TAUNT_RANGE,
   towerStats,
   type Kind,
 } from './data';
@@ -74,6 +75,10 @@ const ATTACKS: Record<Kind, Attack> = {
 };
 
 export function updateTower(game: TdGame, t: Tower, dt: number) {
+  if (t.stun > 0) {
+    t.stun -= dt;
+    return;
+  }
   t.cooldown -= dt;
   if (t.cooldown > 0) return;
   const st = towerStats(t.kind, t.level, t.bonus);
@@ -86,8 +91,13 @@ export function updateTower(game: TdGame, t: Tower, dt: number) {
   ATTACKS[t.kind](game, t, c, st, target, inRange);
 }
 
-/** First: furthest along the path. Nearest: closest to the tower. Own shape: first enemy of the tower's shape, else first. */
+/**
+ * A Square boss close enough taunts the tower: it must be the target. Otherwise First: furthest along the path,
+ * Nearest: closest to the tower, Own shape: first enemy of the tower's shape, else first.
+ */
 function pickTarget(t: Tower, c: Vec, inRange: Enemy[]): Enemy {
+  const taunt = inRange.find((e) => e.boss && e.kind === 'square' && dist(c, e.pos) <= TAUNT_RANGE);
+  if (taunt) return taunt;
   const first = (list: Enemy[]) => list.reduce((a, b) => (b.d > a.d ? b : a));
   if (t.mode === 'nearest') return inRange.reduce((a, b) => (dist(c, b.pos) < dist(c, a.pos) ? b : a));
   if (t.mode === 'shape') {
@@ -152,13 +162,19 @@ export function updateArrows(game: TdGame, dt: number) {
   });
 }
 
-/** A direct hit: shape multiplier, then the shield absorbs, then armor reduces what is left. */
+/**
+ * A direct hit: shape multiplier, then shields absorb (the Diamond boss's one first, then the enemy's own),
+ * then armor (own + Star boss pulse) reduces what is left.
+ */
 export function damage(game: TdGame, e: Enemy, amount: number, from: Tower) {
   let d = amount * shapeMult(from.kind, e.kind);
-  const absorbed = Math.min(e.shield, d);
-  e.shield -= absorbed;
+  const fromAura = Math.min(e.auraShield, d);
+  e.auraShield -= fromAura;
+  const absorbed = fromAura + Math.min(e.shield, d - fromAura);
+  e.shield -= absorbed - fromAura;
   d -= absorbed;
-  if (e.armor > 0) d = Math.max(d * ARMOR_MIN, d - e.armor);
+  const armor = e.armor + (e.auraArmorTime > 0 ? e.auraArmor : 0);
+  if (armor > 0) d = Math.max(d * ARMOR_MIN, d - armor);
   e.hp -= d;
   e.lastHit = game.time;
   e.lastTower = from;

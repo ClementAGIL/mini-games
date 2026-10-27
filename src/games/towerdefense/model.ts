@@ -27,6 +27,13 @@ export interface Enemy extends EnemyStats {
   slowTime: number;
   blinkTimer: number;
   summonTimer: number;
+  powerTimer: number; // bosses: time until the next pulse or portal
+  // Boss auras on a normal enemy. `haste` and `heal` are set again every step while a boss is close.
+  haste: number; // speed bonus, 0.4 = +40%
+  heal: number; // share of max HP healed per second
+  auraShield: number; // absorbs damage before the enemy's own shield, never refills
+  auraArmor: number;
+  auraArmorTime: number;
   leaked: boolean;
   // Tower credited with the kill (experience): last one that damaged it, directly or by burn/poison.
   lastTower: Tower | null;
@@ -48,6 +55,7 @@ export interface Tower {
   bonus: Bonus;
   partners: number;
   damageDone: number; // total damage dealt since it was built
+  stun: number; // seconds left without attacking (Hexagon boss)
 }
 
 /** Homing projectile (Rifle bullet, Poison dart). */
