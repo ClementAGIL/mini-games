@@ -5,8 +5,9 @@
 ## Rules
 
 - Each game generates a new **semi-random path** on a 29×17 grid. The path never loops on itself, starts on the
-  left edge and ends on another side, is **at least 73 tiles long** (73–117, about 95 on average), and always leaves at least
-  one free tile between its parts, so you can build on every side of it.
+  left edge and ends on another side, and is **73–120 tiles long** (about 113 on average). Between two parts of the
+  path there are **mostly 2 or 3 free tiles** (sometimes 1), so you can build on every side of it, and the path winds
+  over the whole map: of 300 generated paths, the one with the most tiles within 3 tiles of it is kept.
 - Build towers on any free tile (not on the path) with coins. You start with **250 coins** and **20 lives**.
   Game over at 0 lives. Endless: your best wave is saved.
 - **Waves** start on a timer (the first one after 20 s), even if the previous wave is still alive. The timer grows with
@@ -207,7 +208,7 @@ Every tower kind is in 2 combos:
 | `shapes.ts`       | The 8 shapes, combo star badge, bars, compact numbers.                                                     |
 | `panel.ts`        | The side panel: controls, shop, info lines, tower actions.                                                 |
 | `towerdefense.ts` | The scene: input, layout, selection, resume prompt, autosave.                                              |
-| `path.ts`         | Path generator (randomized depth-first search on a half-resolution grid).                                  |
+| `path.ts`         | Path generator (randomized depth-first search on a lattice of rows/columns 2–4 tiles apart).               |
 
 ## Possible improvements
 
