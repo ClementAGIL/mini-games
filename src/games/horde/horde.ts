@@ -38,13 +38,19 @@ export class Horde implements Scene {
 
   update(dt: number) {
     this.wait -= dt;
-    const next = this.currentScreen();
-    if (next !== this.screen) this.enter(next);
-    if (this.screen === 'play') return this.run.update(dt, this.move());
-    if (this.wait > 0) return;
-    if (this.screen === 'levelup') this.levelUp.update(this.run, this.w, this.h);
+    this.syncScreen();
+    if (this.screen === 'play') this.run.update(dt, this.move());
+    else if (this.wait > 0) return;
+    else if (this.screen === 'levelup') this.levelUp.update(this.run, this.w, this.h);
     else if (this.screen === 'artifact') choose(artifactButtons(this.run, this.w, this.h));
     else if (input.confirmed()) this.restart();
+    // Again after the step: a pick or a pickup may change the screen, and draw() must match the state.
+    this.syncScreen();
+  }
+
+  private syncScreen() {
+    const next = this.currentScreen();
+    if (next !== this.screen) this.enter(next);
   }
 
   private currentScreen(): Screen {
