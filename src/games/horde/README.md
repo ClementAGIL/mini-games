@@ -13,14 +13,14 @@
 
 Everything grows with the run clock (`t` in minutes):
 
-| What                  | Growth                                         |
-| --------------------- | ---------------------------------------------- |
-| Enemies spawned per s | `0.8 + 0.45 t + 0.02 t²` (≈ 6/s at 10 min)     |
-| Enemy HP              | ×1.19 per minute (×5.7 at 10 min, ×13.6 at 15) |
-| Enemy damage          | +10% per minute                                |
-| Enemy speed           | +2% per minute, at most +40%                   |
+| What                  | Growth                                             |
+| --------------------- | -------------------------------------------------- |
+| Enemies spawned per s | `1.5 × (0.8 + 0.45 t + 0.02 t²)` (≈ 9/s at 10 min) |
+| Enemy HP              | ×1.19 per minute (×5.7 at 10 min, ×13.6 at 15)     |
+| Enemy damage          | +10% per minute                                    |
+| Enemy speed           | +2% per minute, at most +40%                       |
 
-At most 350 enemies at once. Enemies that fall far behind are moved back near you.
+At most 500 enemies at once (boss minions and splits can go a little over). Enemies that fall far behind are moved back near you.
 New enemy types join over time (see the table). **Elites** come every minute and a **Boss** every 3 minutes (see Bosses)
 (no elite on boss minutes); each boss has +60% HP over the previous one on top of the normal growth.
 

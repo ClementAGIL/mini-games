@@ -14,7 +14,7 @@ export const ARTIFACT_SLOTS = 5;
 export const MAX_LEVEL = 5; // weapon level
 export const ELITE_EVERY = 60; // seconds
 export const BOSS_EVERY = 180;
-export const MAX_ENEMIES = 350;
+export const MAX_ENEMIES = 500;
 export const MAX_GEMS = 300;
 export const SPAWN_MARGIN = 60; // enemies appear this far outside the view
 export const RECYCLE = 2; // enemies further than this × the spawn distance are moved back near the player
@@ -35,7 +35,7 @@ export const hpScale = (t: number) => Math.pow(1.19, minutes(t));
 export const damageScale = (t: number) => 1 + 0.1 * minutes(t);
 export const speedScale = (t: number) => Math.min(1.4, 1 + 0.02 * minutes(t));
 /** Enemies spawned per second. */
-export const spawnRate = (t: number) => 0.8 + 0.45 * minutes(t) + 0.02 * minutes(t) ** 2;
+export const spawnRate = (t: number) => 1.5 * (0.8 + 0.45 * minutes(t) + 0.02 * minutes(t) ** 2);
 /** XP needed to go from `level` to the next. */
 export const xpToNext = (level: number) => Math.round(4 + 3 * level + 0.25 * level * level);
 

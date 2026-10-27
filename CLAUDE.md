@@ -137,6 +137,7 @@ Before calling a change done, check:
 3. ✅ Asteroids — see `src/games/asteroids/README.md`
 4. ✅ Bomberman — see `src/games/bomberman/README.md`
 5. ✅ Tower Defense (rules designed with the user; see its README before changing gameplay)
-6. 🚧 Polygon Horde — first playable (rules designed with the user; see `src/games/horde/README.md`)
+6. 🚧 Polygon Horde — 17 weapons, stat cards with rarity, 12 artifacts, 7 bosses (rules designed with the user; see
+   `src/games/horde/README.md`)
 
 Build one game at a time and demo it before starting the next.
