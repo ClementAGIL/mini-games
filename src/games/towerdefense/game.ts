@@ -7,12 +7,12 @@ import {
   BOSS_WAVE_HEAL,
   COMBO_PER_PARTNER,
   comboPartners,
-  INTEREST_CAP,
   INTEREST_RATE,
   SELL_RATIO,
   START_COINS,
   START_LIVES,
   STREAK_BONUS,
+  STREAK_MAX,
   STREAK_STEP,
   TOWERS,
   upgradeCost,
@@ -184,7 +184,7 @@ export class TdGame {
   }
 
   streakMult() {
-    return 1 + STREAK_BONUS * Math.floor(this.streak / STREAK_STEP);
+    return 1 + Math.min(STREAK_MAX, STREAK_BONUS * Math.floor(this.streak / STREAK_STEP));
   }
 
   gainXp(t: Tower, amount: number) {
@@ -280,7 +280,7 @@ export class TdGame {
   }
 
   private payInterest() {
-    const interest = Math.min(INTEREST_CAP, Math.floor(this.coins * INTEREST_RATE));
+    const interest = Math.floor(this.coins * INTEREST_RATE);
     if (interest <= 0) return;
     this.coins += interest;
     this.note(`+${interest} coins interest`);

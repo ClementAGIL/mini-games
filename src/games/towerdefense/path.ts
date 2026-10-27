@@ -8,9 +8,9 @@ export const ROWS = 17;
 // therefore always have at least one free tile between them, so towers fit on every side.
 const CW = (COLS - 1) / 2;
 const CH = (ROWS - 1) / 2;
-const MIN_TILES = 35; // hard minimum path length
-const MIN_CELLS = 26; // preferred range in coarse cells (26 cells ≈ 53 tiles)
-const MAX_CELLS = 46;
+const MIN_TILES = 73; // hard minimum path length
+const MIN_CELLS = 36; // preferred range in coarse cells (36 cells = 73 tiles)
+const MAX_CELLS = 58;
 
 type Side = 'right' | 'top' | 'bottom';
 

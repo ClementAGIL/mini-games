@@ -5,9 +5,9 @@
 ## Rules
 
 - Each game generates a new **semi-random path** on a 29×17 grid. The path never loops on itself, starts on the
-  left edge and ends on another side, is **at least 35 tiles long** (in practice 53–93), and always leaves at least
+  left edge and ends on another side, is **at least 73 tiles long** (73–117, about 95 on average), and always leaves at least
   one free tile between its parts, so you can build on every side of it.
-- Build towers on any free tile (not on the path) with coins. You start with **200 coins** and **20 lives**.
+- Build towers on any free tile (not on the path) with coins. You start with **250 coins** and **20 lives**.
   Game over at 0 lives. Endless: your best wave is saved.
 - **Waves** start on a timer (the first one after 20 s), even if the previous wave is still alive. The timer grows with
   the number of enemies: **30 s** at wave 1, 38 s at wave 10, 47 s at wave 20, **60 s from wave 35** (75 enemies).
@@ -38,19 +38,19 @@ Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own 
 
 | Enemy    | Power                                                                                      | HP  | Speed | Coins per kill | Lives lost at the end |
 | -------- | ------------------------------------------------------------------------------------------ | --- | ----- | -------------- | --------------------- |
-| Circle   | **Regeneration**: heals 2 HP/s                                                             | 30  | 1.4   | 4              | 1                     |
-| Diamond  | **Shield**: 25-point shield absorbs damage first, refills after 2 s without being hit      | 25  | 1.3   | 5              | 2                     |
-| Triangle | **Speed**: fast, low HP                                                                    | 18  | 2.6   | 5              | 1                     |
-| Square   | **Tank**: lots of HP, slow                                                                 | 90  | 0.8   | 8              | 3                     |
-| Star     | **Armor**: every direct hit is reduced by 3 (at least 20% still goes through)              | 40  | 1.2   | 6              | 2                     |
-| Pentagon | **Splitter**: on death splits into 2 small, faster copies (1 coin, 1 life each)            | 35  | 1.3   | 4              | 1                     |
-| Hexagon  | **Blink**: teleports 2 tiles forward every 4 s (slowed enemies blink less often)           | 28  | 1.4   | 6              | 2                     |
-| Octagon  | **Summoner**: drops a small minion behind itself every 3 s (15% of its HP, 1 coin, 1 life) | 45  | 1.1   | 6              | 2                     |
+| Circle   | **Regeneration**: heals 2 HP/s                                                             | 30  | 1.6   | 4              | 1                     |
+| Diamond  | **Shield**: 32-point shield absorbs damage first, refills after 2 s without being hit      | 28  | 1.5   | 5              | 2                     |
+| Triangle | **Speed**: very fast, low HP                                                               | 22  | 3.6   | 5              | 1                     |
+| Square   | **Tank**: lots of HP, slow                                                                 | 180 | 0.95  | 8              | 3                     |
+| Star     | **Armor**: every direct hit is reduced by 5 (at least 20% still goes through)              | 50  | 1.5   | 6              | 2                     |
+| Pentagon | **Splitter**: on death splits into 3 small, faster copies (1 coin, 1 life each)            | 42  | 1.6   | 4              | 1                     |
+| Hexagon  | **Blink**: teleports 3 tiles forward every 4 s (slowed enemies blink less often)           | 34  | 1.7   | 6              | 2                     |
+| Octagon  | **Summoner**: drops a small minion behind itself every 2 s (15% of its HP, 1 coin, 1 life) | 55  | 1.4   | 6              | 2                     |
 
-- Coins per kill also get **+1 every 4 waves** (+5 at wave 20).
+- Coins per kill also get **+1 every 12 waves** (+1 at wave 12, +5 at wave 60).
 - **Bosses**: ×10 HP and coins, ×5 lives lost, ×5 shield/regeneration, ×2 armor, slower, drawn bigger.
   Early bosses are weaker: 60% of that strength at wave 5, 80% at wave 10, full strength from wave 15.
-  A Pentagon boss splits into 3 regular splitters; an Octagon boss summons twice as often.
+  A Pentagon boss splits into 4 regular splitters; an Octagon boss summons twice as often.
 - Damage over time (Flame burn, Poison) ignores armor, which is why Poison counters Armor.
   On the map, a slowed enemy has a dashed outline and a poisoned one a dot in its center.
 - **Tap an enemy** to see its HP, speed, power values (shield, regen, armor, splits, blink, summon) and lives cost.
@@ -108,9 +108,10 @@ Every tower kind is in 2 combos:
 
 - **Boss wave healing**: when every enemy of a boss wave is gone (split copies and minions included), you get back
   **30% of your lost lives**, rounded up (at least 1 if any life is missing). Examples: 10/20 → +3, 7/20 → +4, 19/20 → +1.
-- **Streak**: every **5 waves in a row without losing a life** adds **+5% coins per kill** (+5% at 5 waves, +10% at 10, ...).
+- **Streak**: every **5 waves in a row without losing a life** adds **+5% coins per kill** (+5% at 5 waves, +10% at 10, ...),
+  up to **+25%** (25 waves).
   Losing any life resets it. The panel shows the bonus and the current streak.
-- **Interest**: when a wave starts you earn **2% of the coins you hold**, at most 100 per wave. Saving up pays a little.
+- **Interest**: when a wave starts you earn **2% of the coins you hold** (no cap). Saving up pays a little.
 - Short messages on the map show interest earned and lives healed.
 - **Damage dealt**: each tower counts the damage it has done since it was built (shown as "dealt" when selected).
 - **Game over summary**: lives lost per enemy type, and the damage done by each tower type (share in % and total).
@@ -137,8 +138,8 @@ Every tower kind is in 2 combos:
 - **Mix, from wave 41**: every wave draws a random share per type (whole numbers, a type can have 0) and a random
   "spread", so some waves are dominated by one or two types and others are an even mix (about 36% of waves have one
   type at 40%+, about 29% have no type above 25%).
-- **Enemy HP grows every wave**: ×1.02 per wave until wave 60, then ×1.03 (61–70), ×1.04 (71–80) and **×1.05 per wave
-  from wave 81** (cap). Total: ×2 at wave 35, ×2.6 at 50, ×5.3 at 75, ×17 at 100, ×195 at 150.
+- **Enemy HP grows every wave**: ×1.03 per wave until wave 50, then ×1.04 (51–60) and **×1.05 per wave from wave 61**
+  (cap). Total: ×1.8 at wave 20, ×2.7 at 35, ×4.3 at 50, ×13 at 75, ×44 at 100.
 - **Special powers grow slower**, with the square root of the HP growth (×4 HP → ×2 power): shield, regeneration, armor,
   speed (up to ×2), blink distance (up to ×2), summon speed (up to ×2), and one more split copy per +50% power.
 - **Bosses** come with every 5th wave. A single boss comes at the end of the wave; several bosses are spread evenly
@@ -204,5 +205,7 @@ Ideas not done yet, from the simplest to the biggest:
 - ×2 speed runs the simulation twice per frame, so the fixed 60 Hz timestep is kept.
 - The next wave is decided when the current one starts, so the preview always matches what comes.
 - Combo bonuses are recomputed only when a tower is built or sold.
-- Balance check (headless bot cycling the 8 tower types along the path and spending all coins on the cheapest upgrade):
-  it reaches wave ~104–106, losing almost no lives before wave ~95–100.
+- Balance check (headless bot building up to 30 towers at the tiles that cover the most path, upgrading the cheapest
+  tower when that costs less than 40% of a new tower): the first leaks come around wave 50–60 and it loses around
+  wave 57–76. Before the October 2026 rebalance (longer path, faster and tougher enemies, fewer coins) it reached
+  wave 105–120 with almost no leaks.

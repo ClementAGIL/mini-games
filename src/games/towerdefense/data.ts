@@ -23,7 +23,7 @@ export const OTHER_SHAPE_MULT = 0.6;
 export const CURVE_LEVELS = 10;
 export const LATE_LEVEL_DAMAGE = 1.1;
 export const SELL_RATIO = 0.5;
-export const START_COINS = 200;
+export const START_COINS = 250;
 export const START_LIVES = 20;
 export const SHIELD_DELAY = 2; // seconds without damage before a shield refills
 export const BURN_TIME = 2;
@@ -34,12 +34,12 @@ export const ARMOR_MIN = 0.2; // armor can never block more than 80% of a hit
 export const BLINK_EVERY = 4; // seconds between blinks (slowed enemies blink less often)
 export const BOSS_WAVE_HEAL = 0.3; // share of lost lives given back when a boss wave is finished
 export const BOSS_XP = 5; // a boss kill counts as 5 kills for tower experience
-// Streak: every 5 waves in a row without losing a life adds +5% coins per kill.
+// Streak: every 5 waves in a row without losing a life adds +5% coins per kill, at most +25%.
 export const STREAK_STEP = 5;
 export const STREAK_BONUS = 0.05;
-// Interest: at the start of each wave, +2% of the coins you hold (at most 100).
+export const STREAK_MAX = 0.25;
+// Interest: at the start of each wave, +2% of the coins you hold (no cap).
 export const INTEREST_RATE = 0.02;
-export const INTEREST_CAP = 100;
 // Electric: the bolt jumps to the next enemies behind its target on the path, each at 70% damage,
 // as long as the next one is at most 1.5 tiles further back along the path.
 export const CHAIN_FALLOFF = 0.7;
@@ -207,14 +207,14 @@ interface EnemyBase {
 }
 
 export const ENEMIES: Record<Kind, EnemyBase> = {
-  circle: { power: 'Regeneration', hp: 30, speed: 1.4, reward: 4, lives: 1, regen: 2 },
-  diamond: { power: 'Shield', hp: 25, speed: 1.3, reward: 5, lives: 2, shield: 25 },
-  triangle: { power: 'Speed', hp: 18, speed: 2.6, reward: 5, lives: 1 },
-  square: { power: 'Tank', hp: 90, speed: 0.8, reward: 8, lives: 3 },
-  star: { power: 'Armor', hp: 40, speed: 1.2, reward: 6, lives: 2, armor: 3 },
-  pentagon: { power: 'Splitter', hp: 35, speed: 1.3, reward: 4, lives: 1 },
-  hexagon: { power: 'Blink', hp: 28, speed: 1.4, reward: 6, lives: 2 },
-  octagon: { power: 'Summoner', hp: 45, speed: 1.1, reward: 6, lives: 2, summon: 3 },
+  circle: { power: 'Regeneration', hp: 30, speed: 1.6, reward: 4, lives: 1, regen: 2 },
+  diamond: { power: 'Shield', hp: 28, speed: 1.5, reward: 5, lives: 2, shield: 32 },
+  triangle: { power: 'Speed', hp: 22, speed: 3.6, reward: 5, lives: 1 },
+  square: { power: 'Tank', hp: 180, speed: 0.95, reward: 8, lives: 3 },
+  star: { power: 'Armor', hp: 50, speed: 1.5, reward: 6, lives: 2, armor: 5 },
+  pentagon: { power: 'Splitter', hp: 42, speed: 1.6, reward: 4, lives: 1 },
+  hexagon: { power: 'Blink', hp: 34, speed: 1.7, reward: 6, lives: 2 },
+  octagon: { power: 'Summoner', hp: 55, speed: 1.4, reward: 6, lives: 2, summon: 2 },
 };
 
 export interface EnemyStats {

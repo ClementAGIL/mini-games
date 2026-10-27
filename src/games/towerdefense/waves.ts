@@ -8,20 +8,20 @@ export const MAX_WAVE_TIME = 60; // ... and with the most enemies (wave 35+)
 export const MAX_ENEMIES = 75;
 export const FIRST_WAVE_DELAY = 20;
 export const CLEARED_DELAY = 2; // short breather once every enemy is gone, then the next wave starts
+export const REWARD_GROWTH_WAVES = 12; // coins per kill +1 every 12 waves
 
 /** 5 waves after the last type is introduced (wave 41): from here the growth rate steps up every 10 waves. */
 export const GROWTH_START = 5 * KINDS.length + 1;
-export const EARLY_GROWTH = 0.02;
+export const EARLY_GROWTH = 0.03;
 export const MAX_GROWTH = 0.05;
 
-/** Growth applied at one wave: ×1.02 until wave 60, then ×1.03, ×1.04, capped at ×1.05 from wave 81. */
+/** Growth applied at one wave: ×1.03 until wave 50, then ×1.04, capped at ×1.05 from wave 61. */
 export function growthRate(wave: number) {
   if (wave < GROWTH_START) return EARLY_GROWTH;
-  const stepped = 0.01 * (1 + Math.floor((wave - GROWTH_START) / 10));
-  return Math.min(MAX_GROWTH, Math.max(EARLY_GROWTH, stepped));
+  return Math.min(MAX_GROWTH, EARLY_GROWTH + 0.01 * Math.floor((wave - GROWTH_START) / 10));
 }
 
-/** Enemy stat multiplier for a wave (×1 at wave 1, ≈×2 at wave 35). */
+/** Enemy stat multiplier for a wave (×1 at wave 1, ≈×2.7 at wave 35). */
 export function growth(wave: number) {
   let g = 1;
   for (let w = 2; w <= wave; w++) g *= 1 + growthRate(w);
@@ -44,10 +44,10 @@ export function enemyStats(kind: Kind, wave: number, boss: boolean): EnemyStats 
     regen: (b.regen ?? 0) * pg * powerMul,
     armor: (b.armor ?? 0) * pg * (boss ? 2 * bossScale : 1),
     speed: b.speed * Math.min(pg, 2) * (boss ? 0.75 : 1),
-    reward: (b.reward + Math.floor(wave / 4)) * (boss ? 10 : 1),
+    reward: (b.reward + Math.floor(wave / REWARD_GROWTH_WAVES)) * (boss ? 10 : 1),
     lives: b.lives * (boss ? 5 : 1),
-    splits: kind === 'pentagon' ? (boss ? 3 : 2) + Math.floor((pg - 1) / 0.5) : 0,
-    blink: kind === 'hexagon' ? 2 * Math.min(pg, 2) * (boss ? 1.5 : 1) : 0,
+    splits: kind === 'pentagon' ? (boss ? 4 : 3) + Math.floor((pg - 1) / 0.5) : 0,
+    blink: kind === 'hexagon' ? 3 * Math.min(pg, 2) * (boss ? 1.5 : 1) : 0,
     summon: b.summon ? (b.summon / Math.min(pg, 2)) * (boss ? 0.5 : 1) : 0,
   };
 }
