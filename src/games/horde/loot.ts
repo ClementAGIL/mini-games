@@ -27,7 +27,8 @@ function gem(run: Run, pos: Vec, value: number) {
 
 export function dropLoot(run: Run, e: Enemy) {
   if (e.boss) {
-    add(run, 'relic', e.pos);
+    // The Twins drop their chest when the second one dies.
+    if (!run.bosses.some((o) => o !== e)) add(run, 'relic', e.pos);
     for (let i = 0; i < BOSS_GEMS; i++) gem(run, { x: e.pos.x + rand(-40, 40), y: e.pos.y + rand(-40, 40) }, BOSS_GEM);
     return;
   }
@@ -35,6 +36,7 @@ export function dropLoot(run: Run, e: Enemy) {
     add(run, 'chest', e.pos, CHEST_LEVELS);
     return gem(run, { x: e.pos.x + 12, y: e.pos.y }, e.xp * ELITE_GEM);
   }
+  if (e.xp === 0) return; // boss minions (eggs, decoys)
   gem(run, e.pos, e.xp);
   let roll = Math.random() / luckFactor(run.mods.luck);
   for (const [kind, chance] of Object.entries(DROPS) as [PickupKind, number][]) {

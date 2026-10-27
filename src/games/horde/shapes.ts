@@ -1,6 +1,7 @@
 // Polygon Horde shapes: enemies (colored by role) and pickups. Stat and weapon icons are in icons.ts.
 import { bar, circle, INK, line, PAPER, poly, regular, starPoints, triangle } from '../../engine/draw';
 import type { Vec } from '../../engine/math';
+import { BOSSES } from './bosses';
 import { ENEMIES, type Shape } from './data';
 import { drawStat } from './icons';
 import type { Enemy, Pickup } from './model';
@@ -26,6 +27,8 @@ function shapePoints(shape: Shape, x: number, y: number, r: number, rot: number)
       return regular(x, y, r * 1.1, 5, rot);
     case 'hexagon':
       return regular(x, y, r * 1.05, 6, rot);
+    case 'octagon':
+      return regular(x, y, r * 1.03, 8, rot);
     case 'circle':
       return null;
     case 'star':
@@ -52,7 +55,7 @@ function paint(ctx: CanvasRenderingContext2D, pts: Vec[] | null, x: number, y: n
 /** An enemy facing `rot`: flashes white when hit, elites get a second outline, bombers a fuse. */
 export function drawEnemy(ctx: CanvasRenderingContext2D, e: Enemy, rot: number, time: number) {
   const { x, y } = e.pos;
-  const def = ENEMIES[e.kind];
+  const def = e.bossKind ? BOSSES[e.bossKind] : ENEMIES[e.kind];
   const lit = e.fuse >= 0 && Math.floor(time * 12) % 2 === 0;
   paint(ctx, shapePoints(def.shape, x, y, e.r, rot), x, y, e.r, e.flash > 0 || lit ? PAPER : def.color);
   if (e.elite) {

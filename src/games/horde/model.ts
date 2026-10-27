@@ -1,6 +1,7 @@
 // Shared types of Polygon Horde. Positions are in world units, speeds in units per second.
 import type { Vec } from '../../engine/math';
 import type { WeaponKind } from './arsenal';
+import type { BossKind } from './bosses';
 import type { EnemyKind, StatKind } from './data';
 
 export interface Player {
@@ -23,6 +24,10 @@ export interface Enemy {
   xp: number;
   elite: boolean;
   boss: boolean;
+  bossKind: BossKind | null; // also set on a boss's decoys, which look like it
+  fury: number; // bosses act faster on each loop of the boss rotation
+  slot: number; // twins: 0 or 1
+  ttl: number; // seconds left to live (decoys), Infinity otherwise
   mode: 'walk' | 'aim' | 'dash'; // dashers and bosses
   phase: number; // boss phase index
   phaseLeft: number; // seconds left in the boss phase
@@ -36,6 +41,21 @@ export interface Enemy {
   burnLeft: number;
   burnBy: OwnedWeapon | null;
   flash: number; // seconds of hit flash left
+}
+
+/** A boss attack drawn in the world: an expanding shockwave ring, or a laser that warns, then sweeps. */
+export interface Hazard {
+  kind: 'wave' | 'laser';
+  owner: Enemy;
+  pos: Vec;
+  r: number; // wave radius / laser length
+  maxR: number;
+  angle: number; // laser
+  spin: number; // laser radians per second
+  warn: number; // seconds of harmless warning left
+  life: number;
+  damage: number;
+  hit: boolean; // a wave hurts the player once
 }
 
 /** An enemy bullet. */

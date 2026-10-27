@@ -21,7 +21,7 @@ Everything grows with the run clock (`t` in minutes):
 | Enemy speed           | +2% per minute, at most +40%                   |
 
 At most 350 enemies at once. Enemies that fall far behind are moved back near you.
-New enemy types join over time (see the table). **Elites** come every minute and a **Boss** every 3 minutes
+New enemy types join over time (see the table). **Elites** come every minute and a **Boss** every 3 minutes (see Bosses)
 (no elite on boss minutes); each boss has +60% HP over the previous one on top of the normal growth.
 
 ### Enemies (color = role)
@@ -36,10 +36,27 @@ New enemy types join over time (see the table). **Elites** come every minute and
 | Tank     | big hexagon                         | green  | 5:00 | 80  | slow, heavy (no knockback), hits hard                                                            |
 | Bomber   | circle with a fuse line             | yellow | 6:00 | 8   | runs at you, lights its fuse (0.6 s) and explodes; killed, it explodes too, hurting only enemies |
 | Elite    | any type, ×1.6 size, double outline | same   | 1:00 | ×10 | +50% damage, drops a **chest** (1 free level-up)                                                 |
-| Boss     | big star                            | gray   | 3:00 | 900 | cycles: chase → ring of 16 bullets → summons 6 Grunts → charge; drops a chest (3 free level-ups) |
 
 HP values are at 0:00, before the growth. A thin HP bar appears over an enemy once it is hurt; the boss has a bar at
 the top of the screen.
+
+### Bosses
+
+A boss comes every 3 minutes, in this order, then the rotation starts again with **+25% speed on everything they
+do** per loop. Base HP 900, +60% for each boss after the first (on top of the normal growth). A boss acts in phases of
+4 s, played in a loop. It drops a **big chest** (artifact choice).
+
+| #   | Boss       | Shape       | Color      | Phases                                                                                                                    |
+| --- | ---------- | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Star Lord  | star        | gray       | chase → ring of 16 bullets (twice) → summons 6 Grunts → charges                                                           |
+| 2   | Hive Queen | octagon     | orange     | slow chase → lays 4 eggs (hatch into 3 Runners each after 3 s) → 12 Grunts appear in a ring around you                    |
+| 3   | Prism      | triangle    | cyan       | keeps its distance firing 3-bullet fans ↔ laser: a thin warning line (0.8 s), then a beam sweeping 90°                   |
+| 4   | Spiral     | hexagon     | magenta    | two-armed bullet spiral → chase → flower of 12 slow bullets every second → chase                                          |
+| 5   | Juggernaut | big square  | dark green | charges again and again (short aim), each charge ends with a **shockwave** ring → chase                                   |
+| 6   | Twins      | two circles | violet     | circle you on opposite sides, firing lines of 3 bullets; the survivor gets closer and twice as fast                       |
+| 7   | Mirror     | diamond     | silver     | teleports next to you with 2 **decoys** that look the same (they shoot, vanish after 6 s, give no XP) → bursts of bullets |
+
+The HP bar at the top shows the boss name and its HP (both Twins together).
 
 ### Experience and level-up
 
@@ -132,38 +149,41 @@ Shows time, kills, level, and the damage dealt by each weapon. Restart with Ente
 
 ## Controls
 
-| Action             | Keyboard         | Touch                                       |
-| ------------------ | ---------------- | ------------------------------------------- |
-| Move               | arrows / WASD    | touch anywhere and drag (floating joystick) |
-| Pick a card / slot | 1 2 3 … or click | tap                                         |
-| Pause              | P                | ❚❚                                          |
-| Restart / back     | Enter / Escape   | tap / ✕                                     |
+| Action          | Keyboard         | Touch                                       |
+| --------------- | ---------------- | ------------------------------------------- |
+| Move            | arrows / WASD    | touch anywhere and drag (floating joystick) |
+| Pick a card     | 1 2 3 … or click | tap                                         |
+| Reroll / Banish | R / B            | buttons under the cards                     |
+| Pause           | P                | ❚❚                                          |
+| Restart / back  | Enter / Escape   | tap / ✕                                     |
 
 ## Code layout
 
-| File             | Role                                                                   |
-| ---------------- | ---------------------------------------------------------------------- |
-| `data.ts`        | Balance: player, difficulty growth, enemies, stats, rarities, drops    |
-| `arsenal.ts`     | Weapon tables (levels, evolutions) and final stats with stat bonuses   |
-| `model.ts`       | Shared types                                                           |
-| `game.ts`        | `Run`: state, update order, player, damage, XP, pickups                |
-| `director.ts`    | Spawning: rate, enemy mix, elites, bosses, recycling far enemies       |
-| `enemies.ts`     | Enemy creation and behaviors (lookup table), separation, death effects |
-| `weapons.ts`     | Weapon timers and the firing lookup table                              |
-| `targeting.ts`   | Shared weapon helpers: final stats, nearest targets, geometry, blasts  |
-| `shooters.ts`    | Weapons that fire projectiles (Dart, Shard, Shotgun, Boomerang…)       |
-| `casters.ts`     | Weapons acting around you (Pulse, Frost, Lance, Whip, Chain, Mine…)    |
-| `projectiles.ts` | Flight and hits of each projectile kind (lookup table)                 |
-| `auras.ts`       | Always-on contact weapons: Orbit and Lighthouse                        |
-| `attacks.ts`     | Update order of attacks; rings, mines, meteors, black holes            |
-| `inventory.ts`   | Level-up cards, rarity roll with luck, evolutions                      |
-| `shapes.ts`      | Enemy and pickup shapes                                                |
-| `icons.ts`       | Stat and weapon icons (lookup tables)                                  |
-| `render.ts`      | The world: camera, grid, enemies, player                               |
-| `visuals.ts`     | Drawing of projectiles, rings, beams, bolts, blasts, zones             |
-| `hud.ts`         | HUD: XP, HP, time, boss bar, inventory                                 |
-| `screens.ts`     | Level-up cards and game-over panels                                    |
-| `horde.ts`       | The scene: input, camera zoom, which screen is shown                   |
+| File             | Role                                                                  |
+| ---------------- | --------------------------------------------------------------------- |
+| `data.ts`        | Balance: player, difficulty growth, enemies, stats, rarities, drops   |
+| `arsenal.ts`     | Weapon tables (levels, evolutions) and final stats with stat bonuses  |
+| `model.ts`       | Shared types                                                          |
+| `game.ts`        | `Run`: state, update order, player, damage, XP, pickups               |
+| `director.ts`    | Spawning: rate, enemy mix, elites, bosses, recycling far enemies      |
+| `foes.ts`        | Enemy creation and movement / shooting helpers                        |
+| `enemies.ts`     | Enemy behaviors (lookup table), separation, contact, death effects    |
+| `bosses.ts`      | The 7 bosses: phases, minions (eggs, decoys), shockwaves and lasers   |
+| `weapons.ts`     | Weapon timers and the firing lookup table                             |
+| `targeting.ts`   | Shared weapon helpers: final stats, nearest targets, geometry, blasts |
+| `shooters.ts`    | Weapons that fire projectiles (Dart, Shard, Shotgun, Boomerang…)      |
+| `casters.ts`     | Weapons acting around you (Pulse, Frost, Lance, Whip, Chain, Mine…)   |
+| `projectiles.ts` | Flight and hits of each projectile kind (lookup table)                |
+| `auras.ts`       | Always-on contact weapons: Orbit and Lighthouse                       |
+| `attacks.ts`     | Update order of attacks; rings, mines, meteors, black holes           |
+| `inventory.ts`   | Level-up cards, rarity roll with luck, evolutions                     |
+| `shapes.ts`      | Enemy and pickup shapes                                               |
+| `icons.ts`       | Stat and weapon icons (lookup tables)                                 |
+| `render.ts`      | The world: camera, grid, enemies, player                              |
+| `visuals.ts`     | Drawing of projectiles, rings, beams, bolts, blasts, zones            |
+| `hud.ts`         | HUD: XP, HP, time, boss bar, inventory                                |
+| `screens.ts`     | Level-up cards and game-over panels                                   |
+| `horde.ts`       | The scene: input, camera zoom, which screen is shown                  |
 
 ## Design notes
 

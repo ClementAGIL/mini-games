@@ -4,6 +4,7 @@ import { DASH_SPEED, DASH_TIME, ENEMIES, PLAYER_R } from './data';
 import type { Run } from './game';
 import { drawEnemy, drawPickup } from './shapes';
 import { ARTIFACTS } from './artifacts';
+import { BOSSES } from './bosses';
 import { drawArtifact } from './icons';
 import { drawAttacks } from './visuals';
 
@@ -22,6 +23,7 @@ export function drawWorld(ctx: CanvasRenderingContext2D, run: Run, w: number, h:
   for (const k of run.pickups) drawPickup(ctx, k, run.time);
   drawAttacks(ctx, run);
   drawEnemies(ctx, run);
+  drawHazards(ctx, run);
   for (const s of run.shots) {
     ctx.fillStyle = SHOT_COLOR;
     circle(ctx, s.pos.x, s.pos.y, 4, true);
@@ -42,6 +44,25 @@ function drawGrid(ctx: CanvasRenderingContext2D, run: Run, vw: number, vh: numbe
       ctx.fillRect(gx - 1, gy - 1, 2, 2);
   }
   ctx.fillStyle = INK;
+}
+
+/** Boss shockwaves (thick rings) and lasers (thin while warning, then thick), in the boss's color. */
+function drawHazards(ctx: CanvasRenderingContext2D, run: Run) {
+  const lw = ctx.lineWidth;
+  for (const h of run.hazards) {
+    ctx.strokeStyle = BOSSES[h.owner.bossKind ?? 'starlord'].color;
+    if (h.kind === 'wave') {
+      ctx.lineWidth = lw * 3;
+      circle(ctx, h.pos.x, h.pos.y, h.r);
+      continue;
+    }
+    const warning = h.warn > 0;
+    ctx.lineWidth = warning ? lw : lw * 5;
+    ctx.globalAlpha = warning ? 0.5 : 1;
+    line(ctx, h.pos.x, h.pos.y, h.pos.x + Math.cos(h.angle) * h.r, h.pos.y + Math.sin(h.angle) * h.r);
+    ctx.globalAlpha = 1;
+  }
+  [ctx.strokeStyle, ctx.lineWidth] = [INK, lw];
 }
 
 function drawEnemies(ctx: CanvasRenderingContext2D, run: Run) {

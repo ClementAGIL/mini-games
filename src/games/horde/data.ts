@@ -39,8 +39,19 @@ export const spawnRate = (t: number) => 0.8 + 0.45 * minutes(t) + 0.02 * minutes
 /** XP needed to go from `level` to the next. */
 export const xpToNext = (level: number) => Math.round(4 + 3 * level + 0.25 * level * level);
 
-export type Shape = 'triangle' | 'thin' | 'square' | 'diamond' | 'pentagon' | 'hexagon' | 'circle' | 'star';
-export type EnemyKind = 'grunt' | 'runner' | 'shooter' | 'dasher' | 'splitter' | 'tank' | 'bomber' | 'boss';
+export type Shape = 'triangle' | 'thin' | 'square' | 'diamond' | 'pentagon' | 'hexagon' | 'octagon' | 'circle' | 'star';
+/** `boss` stats are the base of every boss (bosses.ts gives each its look and attacks); eggs and decoys are boss minions. */
+export type EnemyKind =
+  | 'grunt'
+  | 'runner'
+  | 'shooter'
+  | 'dasher'
+  | 'splitter'
+  | 'tank'
+  | 'bomber'
+  | 'boss'
+  | 'egg'
+  | 'decoy';
 
 export interface EnemyDef {
   shape: Shape;
@@ -75,6 +86,8 @@ export const ENEMIES: Record<EnemyKind, EnemyDef> = {
   },
   bomber: { shape: 'circle', color: '#f1c40f', r: 10, hp: 8, speed: 95, damage: 20, xp: 2, from: 360, weight: 2 },
   boss: { shape: 'star', color: '#888', r: 40, hp: 900, speed: 45, damage: 25, xp: 0, from: 0, weight: 0, heavy: true },
+  egg: { shape: 'circle', color: '#ffe0b2', r: 9, hp: 15, speed: 0, damage: 5, xp: 0, from: 0, weight: 0, heavy: true },
+  decoy: { shape: 'diamond', color: '#90a4ae', r: 36, hp: 40, speed: 70, damage: 12, xp: 0, from: 0, weight: 0 },
 };
 
 export const RUNNER_PACK = 4;
@@ -90,9 +103,6 @@ export const DASH_REST = 2.5;
 export const FUSE = 0.6;
 export const FUSE_RANGE = 40;
 export const BLAST_R = 70;
-export const BOSS_PHASE = 4; // seconds per boss phase
-export const BOSS_RING = 16; // bullets in a boss ring
-export const BOSS_SUMMON = 6;
 
 export type StatKind = 'speed' | 'haste' | 'damage' | 'pierce' | 'regen' | 'area' | 'magnet' | 'luck';
 

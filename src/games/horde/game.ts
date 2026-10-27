@@ -29,6 +29,7 @@ import type {
   Bolt,
   Card,
   Enemy,
+  Hazard,
   Mine,
   Missile,
   OwnedWeapon,
@@ -53,6 +54,7 @@ export class Run {
   vortices: Vortex[] = [];
   beams: Beam[] = [];
   bolts: Bolt[] = [];
+  hazards: Hazard[] = [];
   blasts: Blast[] = [];
   pickups: Pickup[] = [];
   weapons: OwnedWeapon[] = [newWeapon('dart')];
@@ -64,7 +66,6 @@ export class Run {
   pendingLevels = 0;
   /** Pending level-ups from chests: their cards are rolled with extra luck. */
   luckyLevels = 0;
-  boss: Enemy | null = null;
   relics = new Artifacts();
   /** Artifacts offered by a boss chest: the scene shows them until one is picked. */
   artifactChoice: ArtifactKind[] | null = null;
@@ -75,6 +76,11 @@ export class Run {
   /** Visible area in world units (spawns happen just outside it, saws bounce on it). */
   viewW = 800;
   viewH = 520;
+
+  /** Living bosses (two for the Twins), for the HUD bar. */
+  get bosses() {
+    return this.enemies.filter((e) => e.boss && e.hp > 0);
+  }
 
   get dead() {
     return this.player.hp <= 0;
@@ -150,7 +156,6 @@ export class Run {
     e.hp = 0;
     this.kills++;
     this.fx.burst(e.pos.x, e.pos.y, e.boss ? 24 : 6, e.boss ? 200 : 90);
-    if (e === this.boss) this.boss = null;
     this.relics.onKill(this);
     onDeath(this, e);
     dropLoot(this, e);

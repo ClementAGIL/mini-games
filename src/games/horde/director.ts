@@ -1,7 +1,8 @@
 // Spawning: how many enemies appear and where, which kinds, elites every minute, bosses every 3 minutes.
 import { dist, rand, type Vec } from '../../engine/math';
 import { BOSS_EVERY, ELITE_EVERY, ENEMIES, MAX_ENEMIES, RECYCLE, RUNNER_PACK, spawnRate, type EnemyKind } from './data';
-import { makeEnemy } from './enemies';
+import { spawnBoss } from './bosses';
+import { makeEnemy } from './foes';
 import type { Run } from './game';
 
 const KINDS = (Object.keys(ENEMIES) as EnemyKind[]).filter((k) => ENEMIES[k].weight > 0);
@@ -18,9 +19,7 @@ export class Director {
     if (run.time >= this.nextBoss) {
       this.nextBoss += BOSS_EVERY;
       this.bosses++;
-      const boss = makeEnemy('boss', this.spawnPoint(run), run.time, { bossNumber: this.bosses });
-      run.enemies.push(boss);
-      run.boss = boss;
+      spawnBoss(run, this.bosses, this.spawnPoint(run));
       run.fx.flash(0.3);
     }
     if (run.time >= this.nextElite) {
