@@ -50,7 +50,7 @@ src/
                           seededRandom (same seed → same numbers)
     scene.ts              Scene + GameEntry interfaces; requestLayout() to refresh a scene's touch buttons
     storage.ts            loadJson/saveJson/removeKey and loadBest/saveBest (never throw)
-  menu/menu.ts            game selection screen
+  menu/menu.ts            game selection screen (+ build info at the bottom)
   games/<game>/<game>.ts  one Scene per game; bigger games split by role (asteroids/, bomberman/, towerdefense/,
                           see the "Code layout" of each README)
   games/<game>/README.md  short doc per game (rules, controls, design notes)
@@ -110,6 +110,8 @@ android/                  generated Capacitor project (only hand-edit: AndroidMa
 2. `npm run dev`, play the game on desktop with the keyboard: start, score, lose, restart, back to menu.
 3. Open the LAN URL on the Android phone (landscape): touch controls work and don't cover the play area.
 4. For a release: `npm run apk`, then `adb install -r android/app/build/outputs/apk/debug/app-debug.apk`.
+   The menu shows the build info at the bottom (`v<version> · <commit>[+ if uncommitted] · <build time>`, injected by
+   `vite.config.ts`), to check which build is on the phone.
 
 ## Review checklist
 

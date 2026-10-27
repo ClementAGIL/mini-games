@@ -46,8 +46,10 @@ export class Menu implements Scene {
     this.start(this.games[i]);
   }
 
-  draw(ctx: CanvasRenderingContext2D, w: number) {
+  draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     text(ctx, 'MINI GAMES', w / 2, 45, 34);
+    // Version, commit and build time, to check which build is installed on the phone.
+    text(ctx, __BUILD_INFO__, w / 2, h - 12, 11);
     this.games.forEach((g, i) => {
       const c = this.cards[i];
       ctx.lineWidth = i === this.selected && !input.isTouch ? 4 : 2;
