@@ -1,9 +1,10 @@
-// One Polygon Horde run: state, update order, the player, damage, XP and level-ups, pickups and items.
+// One Polygon Horde run: state, update order, the player, damage, XP and level-ups, pickups.
 import { Effects } from '../../engine/effects';
 import { SpatialGrid } from '../../engine/grid';
 import { circlesHit, dist, type Vec } from '../../engine/math';
 import { updateAttacks } from './attacks';
 import {
+  ELITE_LUCK,
   HEAL_CARD,
   HEAL_DROP,
   INVULNERABLE,
@@ -20,8 +21,8 @@ import {
 import { Director } from './director';
 import { onDeath, updateEnemies } from './enemies';
 import { dropLoot } from './loot';
-import { addItem, evolve, itemMods, itemName, newWeapon, randomItem } from './inventory';
-import type { Beam, Blast, Card, Enemy, Item, Mine, Missile, OwnedWeapon, Pickup, Player, Ring, Shot } from './model';
+import { evolve, newWeapon, noMods, statValue } from './inventory';
+import type { Beam, Blast, Card, Enemy, Mine, Missile, OwnedWeapon, Pickup, Player, Ring, Shot } from './model';
 import { weaponName } from './arsenal';
 import { updateWeapons } from './weapons';
 
@@ -36,17 +37,14 @@ export class Run {
   blasts: Blast[] = [];
   pickups: Pickup[] = [];
   weapons: OwnedWeapon[] = [newWeapon('dart')];
-  items: Item[] = [];
-  mods = itemMods([]);
+  mods = noMods();
   time = 0;
   kills = 0;
   level = 1;
   xp = 0;
   pendingLevels = 0;
-  /** Items waiting for a slot: the scene shows the swap screen while this is not empty. */
-  pendingItems: Item[] = [];
-  /** A chest just opened: the scene shows its items, then calls `closeChest`. */
-  chest: Item[] | null = null;
+  /** Pending level-ups from chests: their cards are rolled with extra luck. */
+  luckyLevels = 0;
   boss: Enemy | null = null;
   orbitAngle = 0;
   fx = new Effects();
@@ -93,11 +91,11 @@ export class Run {
     const p = this.player;
     const len = Math.hypot(move.x, move.y);
     if (len > 0) p.facing = { x: move.x / len, y: move.y / len };
-    const speed = PLAYER_SPEED * (1 + this.mods.boots);
+    const speed = PLAYER_SPEED * (1 + this.mods.speed);
     p.pos.x += move.x * speed * dt;
     p.pos.y += move.y * speed * dt;
     p.invulnerable -= dt;
-    p.hp = Math.min(p.maxHp, p.hp + this.mods.heart * dt);
+    p.hp = Math.min(p.maxHp, p.hp + this.mods.regen * dt);
   }
 
   hurtPlayer(amount: number) {
@@ -131,7 +129,7 @@ export class Run {
     dropLoot(this, e);
   }
 
-  // ---------- XP, level-ups, items ----------
+  // ---------- XP and level-ups ----------
 
   private gainXp(value: number) {
     this.xp += value;
@@ -142,49 +140,30 @@ export class Run {
     }
   }
 
+  /** Luck used for the next level-up's cards. */
+  get cardLuck() {
+    return this.mods.luck + (this.luckyLevels > 0 ? ELITE_LUCK : 0);
+  }
+
   pickCard(card: Card) {
     this.pendingLevels--;
+    this.luckyLevels = Math.max(0, this.luckyLevels - 1);
     if (card.kind === 'heal') return this.heal(HEAL_CARD);
     if (card.kind === 'maxhp') {
       this.player.maxHp += MAX_HP_CARD;
       return this.heal(MAX_HP_CARD);
     }
-    const owned = this.weapons.find((w) => w.kind === card.weapon);
-    if (owned) owned.level++;
-    else this.weapons.push(newWeapon(card.weapon));
-    this.checkEvolutions();
-  }
-
-  closeChest() {
-    this.pendingItems.push(...(this.chest ?? []));
-    this.chest = null;
-    this.placeItems();
-  }
-
-  /** Swap screen answer: replace slot `slot` with the waiting item, or leave the item (slot < 0). */
-  swapItem(slot: number) {
-    const item = this.pendingItems.shift();
-    if (item && slot >= 0) {
-      this.items.splice(slot, 1);
-      addItem(this.items, item);
+    if (card.kind === 'stat') this.mods[card.stat] += statValue(card);
+    else {
+      const owned = this.weapons.find((w) => w.kind === card.weapon);
+      if (owned) owned.level++;
+      else this.weapons.push(newWeapon(card.weapon));
     }
-    this.placeItems();
-  }
-
-  /** Places waiting items until one needs a free slot (the swap screen then asks). */
-  private placeItems() {
-    while (this.pendingItems.length) {
-      const placed = addItem(this.items, this.pendingItems[0]);
-      if (!placed) break;
-      this.pendingItems.shift();
-      this.fx.popup(itemName(placed), this.player.pos.x, this.player.pos.y - 24);
-    }
-    this.mods = itemMods(this.items);
     this.checkEvolutions();
   }
 
   private checkEvolutions() {
-    for (const w of evolve(this.weapons, this.items)) {
+    for (const w of evolve(this.weapons, this.mods)) {
       this.fx.popup(`${weaponName(w.kind, true)}!`, this.player.pos.x, this.player.pos.y - 40);
       this.fx.flash(0.3);
     }
@@ -196,7 +175,7 @@ export class Run {
     const p = this.player.pos;
     for (const k of this.pickups) {
       const d = dist(k.pos, p);
-      if (!k.pulled && d > PICKUP_R) continue;
+      if (!k.pulled && d > PICKUP_R * (1 + this.mods.magnet)) continue;
       const step = Math.min(d, (k.pulled ? MAGNET_SPEED : PICKUP_SPEED) * dt);
       k.pos.x += ((p.x - k.pos.x) / (d || 1)) * step;
       k.pos.y += ((p.y - k.pos.y) / (d || 1)) * step;
@@ -211,10 +190,9 @@ export class Run {
     if (k.kind === 'heal') this.heal(HEAL_DROP);
     else if (k.kind === 'magnet') for (const g of this.pickups) g.pulled ||= g.kind === 'xp';
     else if (k.kind === 'bomb') this.bomb();
-    else if (k.kind === 'chest') this.chest = Array.from({ length: k.value }, randomItem);
-    else if (k.item) {
-      this.pendingItems.push(k.item);
-      this.placeItems();
+    else if (k.kind === 'chest') {
+      this.pendingLevels += k.value;
+      this.luckyLevels += k.value;
     }
   }
 

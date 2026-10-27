@@ -1,7 +1,7 @@
 // Shared types of Polygon Horde. Positions are in world units, speeds in units per second.
 import type { Vec } from '../../engine/math';
 import type { WeaponKind } from './arsenal';
-import type { EnemyKind, ItemKind } from './data';
+import type { EnemyKind, StatKind } from './data';
 
 export interface Player {
   pos: Vec;
@@ -96,20 +96,18 @@ export interface Blast {
   color: string;
 }
 
-export interface Item {
-  kind: ItemKind;
-  tier: number; // 1..3
-}
-
-export type PickupKind = 'xp' | 'heal' | 'magnet' | 'bomb' | 'chest' | 'item';
+export type PickupKind = 'xp' | 'heal' | 'magnet' | 'bomb' | 'chest';
 
 export interface Pickup {
   kind: PickupKind;
   pos: Vec;
-  value: number; // XP of a gem, item count of a chest
-  item?: Item;
+  value: number; // XP of a gem, free level-ups in a chest
   pulled: boolean; // flies to the player whatever the distance (magnet)
   taken: boolean;
 }
 
-export type Card = { kind: 'weapon'; weapon: WeaponKind } | { kind: 'heal' } | { kind: 'maxhp' };
+export type Card =
+  | { kind: 'weapon'; weapon: WeaponKind }
+  | { kind: 'stat'; stat: StatKind; rarity: number } // rarity: index in RARITIES
+  | { kind: 'heal' }
+  | { kind: 'maxhp' };

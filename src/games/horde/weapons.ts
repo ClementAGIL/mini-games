@@ -84,7 +84,7 @@ const pulse: Fire = (run, w, s) => {
 // Beams spread evenly around the move direction: 1 forward, 2 forward and back, 3 a triangle, 4 a cross.
 const lance: Fire = (run, w, s) => {
   const p = run.player.pos;
-  const width = LANCE_WIDTH * (1 + run.mods.lens);
+  const width = LANCE_WIDTH * (1 + run.mods.area);
   const base = Math.atan2(run.player.facing.y, run.player.facing.x);
   for (let i = 0; i < s.count; i++) {
     const a = base + (i / s.count) * Math.PI * 2;

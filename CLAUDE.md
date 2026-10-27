@@ -11,8 +11,8 @@ It runs in the browser and ships as an **Android APK** through Capacitor.
 **Visual rule (do not break):** only basic shapes (circle, square/rect, triangle, polygon, line), drawn as
 **black outlines on a white background**. Filled black shapes are allowed for emphasis (snake head, solid walls).
 No images, textures, sprites, or sound assets. Colors only where a game needs them for gameplay:
-Tower Defense gives each shape a hue (towers get darker when upgraded); Polygon Horde colors enemies by role and
-items by kind (weapons, player and XP stay black). Everything else stays black and white.
+Tower Defense gives each shape a hue (towers get darker when upgraded); Polygon Horde colors enemies by role,
+stats by kind and rarities (weapons, player and XP stay black). Everything else stays black and white.
 
 ## Stack
 

@@ -1,12 +1,12 @@
-// What a killed enemy leaves: XP gems, rare pickups, chests from elites and bosses.
+// What a killed enemy leaves: XP gems, rare pickups (more with luck), chests from elites and bosses.
 import { rand, type Vec } from '../../engine/math';
-import { BOSS_GEMS, CHEST_ITEMS, DROPS, MAX_GEMS } from './data';
+import { BOSS_GEMS, DROPS, luckFactor, MAX_GEMS } from './data';
 import type { Run } from './game';
-import { randomItem } from './inventory';
 import type { Enemy, PickupKind } from './model';
 
 const ELITE_GEM = 5; // an elite's gem is worth 5× its XP
 const BOSS_GEM = 5;
+const CHEST_LEVELS = { elite: 1, boss: 3 }; // free level-ups in a chest
 
 function add(run: Run, kind: PickupKind, pos: Vec, value = 0) {
   run.pickups.push({
@@ -15,7 +15,6 @@ function add(run: Run, kind: PickupKind, pos: Vec, value = 0) {
     value,
     pulled: false,
     taken: false,
-    ...(kind === 'item' && { item: randomItem() }),
   });
 }
 
@@ -28,16 +27,16 @@ function gem(run: Run, pos: Vec, value: number) {
 
 export function dropLoot(run: Run, e: Enemy) {
   if (e.boss) {
-    add(run, 'chest', e.pos, CHEST_ITEMS.boss);
+    add(run, 'chest', e.pos, CHEST_LEVELS.boss);
     for (let i = 0; i < BOSS_GEMS; i++) gem(run, { x: e.pos.x + rand(-40, 40), y: e.pos.y + rand(-40, 40) }, BOSS_GEM);
     return;
   }
   if (e.elite) {
-    add(run, 'chest', e.pos, CHEST_ITEMS.elite);
+    add(run, 'chest', e.pos, CHEST_LEVELS.elite);
     return gem(run, { x: e.pos.x + 12, y: e.pos.y }, e.xp * ELITE_GEM);
   }
   gem(run, e.pos, e.xp);
-  let roll = Math.random();
+  let roll = Math.random() / luckFactor(run.mods.luck);
   for (const [kind, chance] of Object.entries(DROPS) as [PickupKind, number][]) {
     if ((roll -= chance) < 0) return add(run, kind, { x: e.pos.x + 8, y: e.pos.y });
   }

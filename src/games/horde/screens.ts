@@ -1,15 +1,15 @@
-// Polygon Horde pop-up screens drawn over the paused world: level-up cards, chest, full-bag swap, game over.
+// Polygon Horde pop-up screens drawn over the paused world: level-up cards and game over.
 import { fitSize, INK, PAPER, rect, text } from '../../engine/draw';
 import { input } from '../../engine/input';
 import { compact } from '../../engine/math';
 import { drawButton, type RectButton } from '../../engine/ui';
 import { baseStats, WEAPONS, weaponName, type WeaponKind } from './arsenal';
-import { HEAL_CARD, ITEMS, MAX_HP_CARD, MAX_LEVEL } from './data';
+import { HEAL_CARD, MAX_HP_CARD, MAX_LEVEL, RARITIES, STATS } from './data';
 import type { Run } from './game';
 import { clock } from './hud';
-import { itemName, itemText } from './inventory';
-import type { Card, Item } from './model';
-import { drawItem, drawWeapon } from './shapes';
+import { drawStat, drawWeapon } from './icons';
+import { statValue } from './inventory';
+import type { Card } from './model';
 
 type Icon = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number) => void;
 
@@ -18,6 +18,7 @@ export interface CardView {
   sub: string;
   lines: string[];
   icon: Icon;
+  color?: string; // rarity border
 }
 
 const num = (v: number) => `${Math.round(v * 100) / 100}`;
@@ -40,17 +41,23 @@ function statDiff(kind: WeaponKind, from: number, to: number): string[] {
 export function describeCard(card: Card, run: Run): CardView {
   if (card.kind === 'heal') return { title: 'Heal', sub: '', lines: [`+${HEAL_CARD} HP`], icon: crossIcon };
   if (card.kind === 'maxhp') return { title: 'Vitality', sub: '', lines: [`+${MAX_HP_CARD} max HP`], icon: crossIcon };
+  if (card.kind === 'stat') {
+    const def = STATS[card.stat];
+    const rarity = RARITIES[card.rarity];
+    const icon: Icon = (ctx, x, y, r) => drawStat(ctx, card.stat, x, y, r);
+    return { title: def.name, sub: rarity.name, lines: [def.text(statValue(card))], icon, color: rarity.color };
+  }
   const kind = card.weapon;
   const def = WEAPONS[kind];
   const icon: Icon = (ctx, x, y, r) => drawWeapon(ctx, kind, x, y, r);
   const owned = run.weapons.find((w) => w.kind === kind);
   if (!owned) return { title: def.name, sub: 'NEW', lines: [def.text], icon };
   const lines = statDiff(kind, owned.level, owned.level + 1);
-  if (owned.level + 1 === MAX_LEVEL) lines.push(`Evolves with ${ITEMS[def.evo.item].name} III`);
+  if (owned.level + 1 === MAX_LEVEL) lines.push(`Evolves with any ${STATS[def.evo.stat].name}`);
   return { title: def.name, sub: `Lv ${owned.level} → ${owned.level + 1}`, lines, icon };
 }
 
-const crossIcon: Icon = (ctx, x, y, r) => drawItem(ctx, { kind: 'heart', tier: 3 }, x, y, r);
+const crossIcon: Icon = (ctx, x, y, r) => drawStat(ctx, 'regen', x, y, r);
 
 /** Faded world behind a screen, and a title above it. */
 function backdrop(ctx: CanvasRenderingContext2D, w: number, h: number, title: string, y: number) {
@@ -90,6 +97,12 @@ export function cardButtons(w: number, h: number, n: number, onPick: (i: number)
 
 function drawCard(ctx: CanvasRenderingContext2D, b: RectButton, v: CardView, index: number) {
   drawButton(ctx, b, 13, () => {
+    if (v.color) {
+      ctx.strokeStyle = v.color;
+      ctx.lineWidth = 4;
+      rect(ctx, b.x + 4, b.y + 4, b.w - 8, b.h - 8);
+      [ctx.strokeStyle, ctx.lineWidth] = [INK, 2];
+    }
     v.icon(ctx, b.x + 24, b.y + 26, 13);
     text(ctx, `${index + 1}. ${v.title}`, b.x + 46, b.y + 22, fitSize(ctx, v.title, b.w - 60, 16), 'left');
     text(ctx, v.sub, b.x + 46, b.y + 40, 11, 'left');
@@ -106,76 +119,10 @@ export function drawLevelUp(
   h: number,
   buttons: RectButton[],
   views: CardView[],
+  title = 'LEVEL UP',
 ) {
-  backdrop(ctx, w, h, 'LEVEL UP', buttons[0].y - 28);
+  backdrop(ctx, w, h, title, buttons[0].y - 28);
   buttons.forEach((b, i) => drawCard(ctx, b, views[i], i));
-}
-
-// ---------- chest ----------
-
-export function drawChest(ctx: CanvasRenderingContext2D, w: number, h: number, items: Item[]) {
-  const bw = Math.min(340, w - 32);
-  const bh = 70 + items.length * 40;
-  const x = (w - bw) / 2;
-  const y = (h - bh) / 2;
-  backdrop(ctx, w, h, 'CHEST', y - 24);
-  box(ctx, x, y, bw, bh);
-  items.forEach((it, i) => {
-    const ry = y + 28 + i * 40;
-    drawItem(ctx, it, x + 28, ry, 12);
-    text(ctx, itemName(it), x + 52, ry - 7, 14, 'left');
-    text(ctx, itemText(it), x + 52, ry + 10, 11, 'left');
-  });
-  text(ctx, input.hint('continue'), w / 2, y + bh - 20, 13);
-}
-
-// ---------- swap ----------
-
-/** 6 slot buttons (3 columns) and "Leave it". Keys 1–6 replace a slot, 7 leaves the new item. */
-export function swapButtons(w: number, h: number, run: Run, onPick: (slot: number) => void): RectButton[] {
-  const bw = Math.min(150, (w - 52) / 3);
-  const left = (w - (bw * 3 + 20)) / 2;
-  const top = h / 2 - 20;
-  const slots: RectButton[] = run.items.map((it, i) => ({
-    x: left + (i % 3) * (bw + 10),
-    y: top + Math.floor(i / 3) * 54,
-    w: bw,
-    h: 46,
-    label: itemName(it),
-    onTap: () => onPick(i),
-  }));
-  const leave = {
-    x: (w - bw) / 2,
-    y: top + 116,
-    w: bw,
-    h: 38,
-    label: `${slots.length + 1}. Leave it`,
-    onTap: () => onPick(-1),
-  };
-  return [...slots, leave];
-}
-
-export function drawSwap(ctx: CanvasRenderingContext2D, w: number, h: number, run: Run, buttons: RectButton[]) {
-  const it = run.pendingItems[0];
-  backdrop(ctx, w, h, 'BAG FULL', buttons[0].y - 100);
-  drawItem(ctx, it, w / 2 - 80, buttons[0].y - 56, 14);
-  text(ctx, `${itemName(it)}: ${itemText(it)}`, w / 2 - 58, buttons[0].y - 56, 14, 'left');
-  text(ctx, 'Replace which item?', w / 2, buttons[0].y - 22, 12);
-  buttons.forEach((b, i) => {
-    const old = run.items[i];
-    if (!old) return drawButton(ctx, b, 13);
-    drawButton(ctx, b, 12, () => {
-      drawItem(ctx, old, b.x + 18, b.y + b.h / 2, 10);
-      text(
-        ctx,
-        `${i + 1}. ${itemName(old)}`,
-        b.x + 34,
-        b.y + b.h / 2,
-        fitSize(ctx, itemName(old), b.w - 56, 12),
-        'left',
-      );
-    });
-  });
 }
 
 // ---------- game over ----------

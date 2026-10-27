@@ -1,4 +1,4 @@
-// Polygon Horde: survive endless hordes. Weapons fire by themselves; you move, pick level-up cards and merge items.
+// Polygon Horde: survive endless hordes. Weapons fire by themselves; you move, pick level-up cards (weapons, stats).
 import { stick as drawStick } from '../../engine/draw';
 import { ANY_DIR, input, type Button } from '../../engine/input';
 import type { Vec } from '../../engine/math';
@@ -11,18 +11,9 @@ import { drawHud } from './hud';
 import { levelUpCards } from './inventory';
 import type { Card } from './model';
 import { drawWorld } from './render';
-import {
-  cardButtons,
-  describeCard,
-  drawChest,
-  drawGameOver,
-  drawLevelUp,
-  drawSwap,
-  swapButtons,
-  type CardView,
-} from './screens';
+import { cardButtons, describeCard, drawGameOver, drawLevelUp, type CardView } from './screens';
 
-type Screen = 'play' | 'levelup' | 'chest' | 'swap' | 'over';
+type Screen = 'play' | 'levelup' | 'over';
 
 const STICK_R = 45; // px: dragging this far from the touch point is full speed
 const STICK_DEAD = 6;
@@ -62,18 +53,12 @@ export class Horde implements Scene {
     if (this.screen === 'play') return this.run.update(dt, this.move());
     if (this.wait > 0) return;
     if (this.screen === 'levelup') choose(this.cardButtons());
-    else if (this.screen === 'swap') choose(this.swapButtons());
-    else if (input.confirmed()) {
-      if (this.screen === 'chest') this.run.closeChest();
-      else this.restart();
-    }
+    else if (input.confirmed()) this.restart();
   }
 
   private currentScreen(): Screen {
     const r = this.run;
     if (r.dead) return 'over';
-    if (r.chest) return 'chest';
-    if (r.pendingItems.length) return 'swap';
     return r.pendingLevels > 0 ? 'levelup' : 'play';
   }
 
@@ -85,7 +70,7 @@ export class Horde implements Scene {
   }
 
   private dealCards() {
-    this.cards = levelUpCards(this.run.weapons);
+    this.cards = levelUpCards(this.run.weapons, this.run.cardLuck);
     this.views = this.cards.map((c) => describeCard(c, this.run));
   }
 
@@ -95,10 +80,6 @@ export class Horde implements Scene {
       if (this.run.pendingLevels > 0) this.dealCards(); // several levels at once: deal again
       this.wait = INPUT_DELAY / 2;
     });
-  }
-
-  private swapButtons() {
-    return swapButtons(this.w, this.h, this.run, (slot) => this.run.swapItem(slot));
   }
 
   private restart() {
@@ -130,8 +111,6 @@ export class Horde implements Scene {
     const drag = input.drags()[0];
     if (this.screen === 'play' && drag) drawStick(ctx, drag.start, drag.pos, STICK_R);
     if (this.screen === 'levelup') drawLevelUp(ctx, w, h, this.cardButtons(), this.views);
-    if (this.screen === 'chest' && this.run.chest) drawChest(ctx, w, h, this.run.chest);
-    if (this.screen === 'swap') drawSwap(ctx, w, h, this.run, this.swapButtons());
     if (this.screen === 'over') drawGameOver(ctx, w, h, this.run, this.best);
   }
 }

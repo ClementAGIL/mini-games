@@ -1,12 +1,12 @@
 # Polygon Horde
 
-**Status:** 🚧 First playable · **Difficulty to build:** ★★★★ (horde AI, auto weapons, XP/level-up, loot and merging)
+**Status:** 🚧 First playable · **Difficulty to build:** ★★★★ (horde AI, auto weapons, XP/level-up, stat cards with rarity)
 
 ## Rules
 
 - You are a **black filled circle** on an endless field. Enemies come from every side, endlessly. You only **move**:
   every weapon fires by itself. The run ends when your HP reaches 0. **Score = time survived** (best time is saved).
-- Every run starts from zero: **100 HP**, the **Dart** weapon, no items.
+- Every run starts from zero: **100 HP**, the **Dart** weapon, no stats.
 - **Getting hit**: contact or a bullet removes HP, then you are invulnerable for 0.5 s (you blink).
 
 ### Difficulty (endless)
@@ -35,8 +35,8 @@ New enemy types join over time (see the table). **Elites** come every minute and
 | Splitter | pentagon                            | teal   | 4:00 | 30  | splits into 3 Grunts when killed                                                                 |
 | Tank     | big hexagon                         | green  | 5:00 | 80  | slow, heavy (no knockback), hits hard                                                            |
 | Bomber   | circle with a fuse line             | yellow | 6:00 | 8   | runs at you, lights its fuse (0.6 s) and explodes; killed, it explodes too, hurting only enemies |
-| Elite    | any type, ×1.6 size, double outline | same   | 1:00 | ×10 | +50% damage, drops a **chest** (1 item)                                                          |
-| Boss     | big star                            | gray   | 3:00 | 900 | cycles: chase → ring of 16 bullets → summons 6 Grunts → charge; drops a big chest (3 items)      |
+| Elite    | any type, ×1.6 size, double outline | same   | 1:00 | ×10 | +50% damage, drops a **chest** (1 free level-up)                                                 |
+| Boss     | big star                            | gray   | 3:00 | 900 | cycles: chase → ring of 16 bullets → summons 6 Grunts → charge; drops a chest (3 free level-ups) |
 
 HP values are at 0:00, before the growth. A thin HP bar appears over an enemy once it is hurt; the boss has a bar at
 the top of the screen.
@@ -45,47 +45,51 @@ the top of the screen.
 
 - Enemies drop **XP gems** (small black diamonds). They fly to you when you are within 60. Level `n` needs
   `4 + 3n + n²/4` XP.
-- Each level-up pauses the game and offers **3 cards**: a new weapon (if you have fewer than **4**) or +1 level on one
-  you have (max **level 5**). When nothing is left to offer: **Heal 30 HP** or **+10 max HP**.
+- Each level-up pauses the game and offers **3 different cards**, drawn at random from one pool:
+  - a **new weapon** (while you have fewer than **5**), or **+1 level** on a weapon you have (max **level 5**);
+  - a **stat card** (4 random stats are in the pool each time), with a **rarity** rolled for each card.
+  - When the pool runs dry: **Heal 30 HP** or **+10 max HP**.
+- Stats have **no limit**: every card adds to the stat's total (shown bottom left).
+
+### Stats and rarity
+
+| Stat   | Icon          | Color  | Iron / Bronze / Silver / Gold / Diamond | Effect                                                                         |
+| ------ | ------------- | ------ | --------------------------------------- | ------------------------------------------------------------------------------ |
+| Speed  | triangle      | cyan   | +4 / 8 / 12 / 18 / 30%                  | move speed                                                                     |
+| Haste  | clock         | amber  | +5 / 10 / 15 / 25 / 50%                 | attack speed (all cooldowns)                                                   |
+| Might  | thin diamond  | red    | +6 / 12 / 18 / 30 / 60%                 | damage of all weapons                                                          |
+| Pierce | line + tip    | brown  | +1 / 1 / 2 / 2 / 3                      | Dart passes through more enemies, Shard bounces more                           |
+| Regen  | cross         | pink   | +0.2 / 0.4 / 0.7 / 1.2 / 2.5 HP/s       | health regeneration                                                            |
+| Area   | double circle | indigo | +5 / 10 / 15 / 25 / 45%                 | dart/shard size, Pulse and Mine radius, Lance length, Orbit radius and squares |
+| Reach  | horseshoe     | lime   | +15 / 30 / 45 / 70 / 120%               | XP and loot pickup range (60 at start)                                         |
+| Luck   | clover        | green  | +5 / 10 / 15 / 25 / 50                  | rarer cards and more drops                                                     |
+
+- **Rarity odds** (border color of the card): Iron 50%, Bronze 28%, Silver 15%, Gold 6%, Diamond 1%.
+- **Luck**: the weight of rarity `i` (Iron = 0 … Diamond = 4) is multiplied by `(1 + luck/100)^i`. At 50 luck:
+  Iron 33%, Bronze 28%, Silver 22%, Gold 13%, Diamond 3%. Luck also multiplies the heal / magnet / bomb drop chances by
+  `1 + luck/100`.
 
 ### Weapons (black, auto-fire)
 
 | Weapon | Shape              | Lv 1 → Lv 5                                                              | Evolves with | Evolution                                |
 | ------ | ------------------ | ------------------------------------------------------------------------ | ------------ | ---------------------------------------- |
-| Dart   | small triangle     | fires at the nearest enemy · 10 → 24 dmg, 1 → 3 darts, 0.8 → 0.6 s       | Clock III    | **Storm**: 3 darts / 0.3 s               |
-| Orbit  | squares around you | contact damage · 8 → 24 dmg, 2 → 5 squares                               | Lens III     | **Halo**: 8 big squares                  |
-| Pulse  | expanding circle   | ring every 3 → 2.2 s, pushes enemies back · 15 → 44 dmg, radius 90 → 140 | Heart III    | **Lifewave**: heals 0.5 HP per enemy hit |
-| Lance  | line               | piercing beam where you move · 20 → 56 dmg, 1 → 3 beams (front, back…)   | Needle III   | **Railgun**: 4 long beams                |
-| Mine   | filled square      | dropped where you stand, explodes on contact · 30 → 80 dmg               | Blade III    | **Minefield**: 3 mines / 0.7 s           |
-| Shard  | star               | bounces between enemies · 12 → 28 dmg, 2 → 7 bounces, 1 → 3 stars        | Boots III    | **Comet**: 4 stars, 10 bounces           |
+| Dart   | small triangle     | fires at the nearest enemy · 10 → 24 dmg, 1 → 3 darts, 0.8 → 0.6 s       | Haste        | **Storm**: 3 darts / 0.3 s               |
+| Orbit  | squares around you | contact damage · 8 → 24 dmg, 2 → 5 squares                               | Area         | **Halo**: 8 big squares                  |
+| Pulse  | expanding circle   | ring every 3 → 2.2 s, pushes enemies back · 15 → 44 dmg, radius 90 → 140 | Regen        | **Lifewave**: heals 0.5 HP per enemy hit |
+| Lance  | line               | piercing beam where you move · 20 → 56 dmg, 1 → 3 beams (front, back…)   | Pierce       | **Railgun**: 4 long beams                |
+| Mine   | filled square      | dropped where you stand, explodes on contact · 30 → 80 dmg               | Might        | **Minefield**: 3 mines / 0.7 s           |
+| Shard  | star               | bounces between enemies · 12 → 28 dmg, 2 → 7 bounces, 1 → 3 stars        | Speed        | **Comet**: 4 stars, 10 bounces           |
 
-A level 5 weapon **evolves** as soon as you hold its item at tier III.
-
-### Items (colored, from loot)
-
-| Item   | Shape         | Color  | Tier I / II / III           | Affects                                                                        |
-| ------ | ------------- | ------ | --------------------------- | ------------------------------------------------------------------------------ |
-| Boots  | triangle      | cyan   | +10 / 20 / 35% move speed   | you                                                                            |
-| Clock  | circle + hand | amber  | +10 / 22 / 40% attack speed | all weapon cooldowns                                                           |
-| Blade  | thin diamond  | red    | +15 / 32 / 55% damage       | all weapons                                                                    |
-| Needle | line + tip    | brown  | +1 / 2 / 3 pierce           | Dart passes through more enemies, Shard bounces more                           |
-| Heart  | cross         | pink   | 0.5 / 1.2 / 2.5 HP/s regen  | you                                                                            |
-| Lens   | double circle | indigo | +12 / 26 / 45% area         | dart/shard size, Pulse and Mine radius, Lance length, Orbit radius and squares |
-
-- **Tier** is shown by the outline: tier I = outline, tier II = double outline, tier III = filled.
-- **6 item slots.** Taking an item identical to one you hold (same item, same tier) **merges** them into the next tier
-  (I + I → II, II + II → III); merges chain. Different tiers of the same item stack.
-- **Full slots** and no merge: the game pauses and asks which slot to replace, or to leave the new item.
+A level 5 weapon **evolves** as soon as you have taken at least one card of its stat.
 
 ### Loot
 
-| Drop         | Where                                     | Effect                                 |
-| ------------ | ----------------------------------------- | -------------------------------------- |
-| Item         | 0.3% of kills; elites and bosses (chests) | see Items                              |
-| Chest        | elites (1 item), bosses (3 items)         | opens a short screen showing the items |
-| Heal (cross) | 0.6% of kills                             | +25 HP                                 |
-| Magnet       | 0.2% of kills                             | pulls every XP gem to you              |
-| Bomb         | 0.15% of kills                            | kills every normal enemy on screen     |
+| Drop         | Where                  | Effect                                     |
+| ------------ | ---------------------- | ------------------------------------------ |
+| Chest        | elites (1), bosses (3) | free level-ups, cards rolled with +30 luck |
+| Heal (cross) | 0.6% of kills          | +25 HP                                     |
+| Magnet       | 0.2% of kills          | pulls every XP gem to you                  |
+| Bomb         | 0.15% of kills         | kills every normal enemy on screen         |
 
 ### Game over
 
@@ -104,19 +108,20 @@ Shows time, kills, level, and the damage dealt by each weapon. Restart with Ente
 
 | File           | Role                                                                   |
 | -------------- | ---------------------------------------------------------------------- |
-| `data.ts`      | Balance: player, difficulty growth, enemies, items, drops              |
-| `arsenal.ts`   | Weapon tables (levels, evolutions) and final stats with item bonuses   |
+| `data.ts`      | Balance: player, difficulty growth, enemies, stats, rarities, drops    |
+| `arsenal.ts`   | Weapon tables (levels, evolutions) and final stats with stat bonuses   |
 | `model.ts`     | Shared types                                                           |
 | `game.ts`      | `Run`: state, update order, player, damage, XP, pickups                |
 | `director.ts`  | Spawning: rate, enemy mix, elites, bosses, recycling far enemies       |
 | `enemies.ts`   | Enemy creation and behaviors (lookup table), separation, death effects |
 | `weapons.ts`   | Firing of each weapon (lookup table)                                   |
 | `attacks.ts`   | Projectiles, rings, mines, orbit: movement and hits                    |
-| `inventory.ts` | Items (merge, swap, bonuses), level-up cards, evolutions               |
-| `shapes.ts`    | Enemy, item, weapon and pickup shapes                                  |
+| `inventory.ts` | Level-up cards, rarity roll with luck, evolutions                      |
+| `shapes.ts`    | Enemy and pickup shapes                                                |
+| `icons.ts`     | Stat and weapon icons (lookup tables)                                  |
 | `render.ts`    | The world: camera, grid, every object                                  |
 | `hud.ts`       | HUD: XP, HP, time, boss bar, inventory                                 |
-| `screens.ts`   | Level-up cards, chest, swap and game-over panels                       |
+| `screens.ts`   | Level-up cards and game-over panels                                    |
 | `horde.ts`     | The scene: input, camera zoom, which screen is shown                   |
 
 ## Design notes

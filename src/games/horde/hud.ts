@@ -1,8 +1,8 @@
-// Polygon Horde HUD: XP bar, run time, level and kills, player HP, boss bar, and the inventory (bottom left).
+// Polygon Horde HUD: XP bar, run time, level and kills, player HP, boss bar, weapons and stats (bottom left).
 import { bar, rect, text } from '../../engine/draw';
-import { WEAPON_SLOTS, ITEM_SLOTS, xpToNext } from './data';
+import { STAT_KINDS, WEAPON_SLOTS, xpToNext, type StatKind } from './data';
 import type { Run } from './game';
-import { drawItem, drawWeapon } from './shapes';
+import { drawStat, drawWeapon } from './icons';
 
 const SLOT = 30; // inventory slot size in px
 
@@ -25,7 +25,7 @@ export function drawHud(ctx: CanvasRenderingContext2D, run: Run, w: number, h: n
   drawInventory(ctx, run, h);
 }
 
-// Weapons on one row (level under each, filled box once evolved), items on the row below.
+// Weapons on one row (level in the corner, ★ once evolved), the stats taken on the row below.
 function drawInventory(ctx: CanvasRenderingContext2D, run: Run, h: number) {
   const y1 = h - SLOT * 2 - 24;
   const y2 = h - SLOT - 12;
@@ -39,12 +39,16 @@ function drawInventory(ctx: CanvasRenderingContext2D, run: Run, h: number) {
     drawWeapon(ctx, wp.kind, x + SLOT / 2, y1 + SLOT / 2 - 2, SLOT * 0.32);
     text(ctx, wp.evolved ? '★' : `${wp.level}`, x + SLOT - 5, y1 + SLOT - 6, 9);
   }
-  for (let i = 0; i < ITEM_SLOTS; i++) {
-    const x = 12 + i * (SLOT + 4);
-    ctx.globalAlpha = 0.3;
-    rect(ctx, x, y2, SLOT, SLOT);
-    ctx.globalAlpha = 1;
-    const it = run.items[i];
-    if (it) drawItem(ctx, it, x + SLOT / 2, y2 + SLOT / 2, SLOT * 0.32);
-  }
+  STAT_KINDS.filter((k) => run.mods[k] > 0).forEach((k, i) => {
+    const x = 12 + i * (SLOT + 10) + SLOT / 2;
+    drawStat(ctx, k, x, y2 + 8, 8);
+    text(ctx, statShort(k, run.mods[k]), x, y2 + 26, 9);
+  });
+}
+
+/** Total of a stat in a few characters: "+35%", "+2", "1.4/s". */
+function statShort(k: StatKind, v: number) {
+  if (k === 'pierce' || k === 'luck') return `+${v}`;
+  if (k === 'regen') return `${Math.round(v * 10) / 10}/s`;
+  return `+${Math.round(v * 100)}%`;
 }

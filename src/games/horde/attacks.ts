@@ -80,7 +80,7 @@ function updateMines(run: Run, dt: number) {
   run.mines = run.mines.filter((m) => m.life > 0);
 }
 
-export const orbitHalf = (run: Run) => ORBIT_SQUARE * (1 + run.mods.lens);
+export const orbitHalf = (run: Run) => ORBIT_SQUARE * (1 + run.mods.area);
 
 /** Centers of an Orbit weapon's squares, evenly spaced on a circle around the player. */
 export function orbitSquares(run: Run, s: WeaponStats): Vec[] {

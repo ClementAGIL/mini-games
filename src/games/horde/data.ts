@@ -1,4 +1,4 @@
-// Balance tables for Polygon Horde: player, difficulty growth, enemies, items and drops. Tune numbers here.
+// Balance tables for Polygon Horde: player, difficulty growth, enemies, stats, rarities and drops. Tune numbers here.
 // Weapon tables are in arsenal.ts.
 
 export const VIEW = 520; // world units visible across the shorter side of the screen
@@ -9,9 +9,7 @@ export const INVULNERABLE = 0.5; // seconds after a hit
 export const PICKUP_R = 60; // gems and loot closer than this fly to the player
 export const PICKUP_SPEED = 380;
 export const MAGNET_SPEED = 700;
-export const WEAPON_SLOTS = 4;
-export const ITEM_SLOTS = 6;
-export const MAX_TIER = 3;
+export const WEAPON_SLOTS = 5;
 export const MAX_LEVEL = 5; // weapon level
 export const ELITE_EVERY = 60; // seconds
 export const BOSS_EVERY = 180;
@@ -27,9 +25,8 @@ export const ELITE_HP = 10;
 export const ELITE_DAMAGE = 1.5;
 export const BOSS_GROWTH = 0.6; // each boss has +60% HP over the previous one
 export const BOSS_GEMS = 8; // gems of 5 XP dropped by a boss
-export const CHEST_ITEMS = { elite: 1, boss: 3 };
 /** Chance per kill of a normal enemy. */
-export const DROPS = { item: 0.003, heal: 0.006, magnet: 0.002, bomb: 0.0015 };
+export const DROPS = { heal: 0.006, magnet: 0.002, bomb: 0.0015 };
 
 const minutes = (t: number) => t / 60;
 /** Enemy HP multiplier after `t` seconds: ×1.19 per minute, so a long run always ends. */
@@ -96,25 +93,44 @@ export const BOSS_PHASE = 4; // seconds per boss phase
 export const BOSS_RING = 16; // bullets in a boss ring
 export const BOSS_SUMMON = 6;
 
-export type ItemKind = 'boots' | 'clock' | 'blade' | 'needle' | 'heart' | 'lens';
+export type StatKind = 'speed' | 'haste' | 'damage' | 'pierce' | 'regen' | 'area' | 'magnet' | 'luck';
 
-export interface ItemDef {
+export interface StatDef {
   name: string;
   color: string;
-  tiers: number[]; // bonus at tier I, II, III
+  values: number[]; // bonus of one card at each rarity, Iron to Diamond
   text: (v: number) => string;
 }
 
 const pct = (what: string) => (v: number) => `+${Math.round(v * 100)}% ${what}`;
 
-export const ITEMS: Record<ItemKind, ItemDef> = {
-  boots: { name: 'Boots', color: '#00bcd4', tiers: [0.1, 0.2, 0.35], text: pct('move speed') },
-  clock: { name: 'Clock', color: '#ffb300', tiers: [0.1, 0.22, 0.4], text: pct('attack speed') },
-  blade: { name: 'Blade', color: '#c62828', tiers: [0.15, 0.32, 0.55], text: pct('damage') },
-  needle: { name: 'Needle', color: '#8d6e63', tiers: [1, 2, 3], text: (v) => `+${v} pierce` },
-  heart: { name: 'Heart', color: '#ec407a', tiers: [0.5, 1.2, 2.5], text: (v) => `+${v} HP/s regen` },
-  lens: { name: 'Lens', color: '#5c6bc0', tiers: [0.12, 0.26, 0.45], text: pct('area') },
+export const STATS: Record<StatKind, StatDef> = {
+  speed: { name: 'Speed', color: '#00bcd4', values: [0.04, 0.08, 0.12, 0.18, 0.3], text: pct('move speed') },
+  haste: { name: 'Haste', color: '#ffb300', values: [0.05, 0.1, 0.15, 0.25, 0.5], text: pct('attack speed') },
+  damage: { name: 'Might', color: '#c62828', values: [0.06, 0.12, 0.18, 0.3, 0.6], text: pct('damage') },
+  pierce: { name: 'Pierce', color: '#8d6e63', values: [1, 1, 2, 2, 3], text: (v) => `+${v} pierce` },
+  regen: { name: 'Regen', color: '#ec407a', values: [0.2, 0.4, 0.7, 1.2, 2.5], text: (v) => `+${v} HP/s` },
+  area: { name: 'Area', color: '#5c6bc0', values: [0.05, 0.1, 0.15, 0.25, 0.45], text: pct('area') },
+  magnet: { name: 'Reach', color: '#7cb342', values: [0.15, 0.3, 0.45, 0.7, 1.2], text: pct('pickup range') },
+  luck: { name: 'Luck', color: '#43a047', values: [5, 10, 15, 25, 50], text: (v) => `+${v} luck` },
 };
 
-export const ITEM_KINDS = Object.keys(ITEMS) as ItemKind[];
-export const TIER_NAMES = ['I', 'II', 'III'];
+export const STAT_KINDS = Object.keys(STATS) as StatKind[];
+
+export interface Rarity {
+  name: string;
+  color: string;
+  weight: number; // base odds in %
+}
+
+export const RARITIES: Rarity[] = [
+  { name: 'Iron', color: '#78909c', weight: 50 },
+  { name: 'Bronze', color: '#bf7a3a', weight: 28 },
+  { name: 'Silver', color: '#9e9e9e', weight: 15 },
+  { name: 'Gold', color: '#ffb300', weight: 6 },
+  { name: 'Diamond', color: '#26c6da', weight: 1 },
+];
+
+/** Luck multiplies the odds of rarity i by (1 + luck/100)^i, and the drop chances by (1 + luck/100). */
+export const luckFactor = (luck: number) => 1 + luck / 100;
+export const ELITE_LUCK = 30; // extra luck for the cards of an elite's free level-up
