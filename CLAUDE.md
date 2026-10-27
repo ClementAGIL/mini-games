@@ -5,13 +5,14 @@ Guidance for Claude (and any contributor) working in this repository.
 ## What this project is
 
 A collection of **small, quick-to-demo versions of classic games**, in one app with a menu:
-Snake → Asteroids → Bomberman → Tower Defense (from simplest to hardest).
+Snake → Asteroids → Bomberman → Tower Defense → Polygon Horde (from simplest to hardest).
 It runs in the browser and ships as an **Android APK** through Capacitor.
 
 **Visual rule (do not break):** only basic shapes (circle, square/rect, triangle, polygon, line), drawn as
 **black outlines on a white background**. Filled black shapes are allowed for emphasis (snake head, solid walls).
 No images, textures, sprites, or sound assets. Colors only where a game needs them for gameplay:
-Tower Defense gives each shape a hue (towers get darker when upgraded). Everything else stays black and white.
+Tower Defense gives each shape a hue (towers get darker when upgraded); Polygon Horde colors enemies by role and
+items by kind (weapons, player and XP stay black). Everything else stays black and white.
 
 ## Stack
 
@@ -38,16 +39,17 @@ src/
   engine/
     canvas.ts             full-screen canvas, DPR scaling, `view.{w,h}` in CSS pixels, onResize
     loop.ts               fixed-step update (60 Hz) + draw per animation frame
-    draw.ts               drawing: shapes (circle, rect, poly, polyline, regular, triangle, line), text, font,
-                          textWidth, fitSize, label (boxed text), overlay (message box)
+    draw.ts               drawing: shapes (circle, rect, poly, polyline, regular, starPoints, triangle, line), text,
+                          font, textWidth, fitSize, label (boxed text), overlay (message box), bar (thin progress
+                          bar), stick (virtual joystick)
     input.ts              keyboard + pointer; on-screen touch Buttons; `dpad()`; swipes act as arrow presses;
                           direction keys (ARROWS, WASD, ANY_DIR) with dirHit()/dirDown(); drags() for joysticks;
                           confirmed() / hint() for "press Enter or tap to …"
     ui.ts                 rectangular buttons (RectButton, drawButton, tapButtons) and ChoiceMenu (start screens)
-    effects.ts            Effects: score popups, explosion sparks, screen flash
+    effects.ts            Effects: score popups, explosion sparks, screen flash (drawParticles inside a camera)
     grid.ts               SpatialGrid: bucket objects by cell for cheap collision checks
     math.ts               Vec, Rect, rand/randInt/pick/clamp/dist/wrap/approach/angleDiff/shuffle, collisions, inRect,
-                          seededRandom (same seed → same numbers)
+                          seededRandom (same seed → same numbers), compact (950, 12.3k, 4.5M)
     scene.ts              Scene + GameEntry interfaces; requestLayout() to refresh a scene's touch buttons
     storage.ts            loadJson/saveJson/removeKey and loadBest/saveBest (never throw)
   menu/menu.ts            game selection screen (+ build info at the bottom)
@@ -61,6 +63,7 @@ src/
     render.ts overlays.ts shapes.ts panel.ts   drawing
     save.ts               save / resume
     towerdefense.ts       the scene: input, layout, selection, resume prompt
+  games/horde/            Polygon Horde (survivors-like), split by role, see its README "Code layout"
 android/                  generated Capacitor project (only hand-edit: AndroidManifest orientation)
 ```
 
@@ -73,6 +76,8 @@ android/                  generated Capacitor project (only hand-edit: AndroidMa
 - A game with options starts on a `ChoiceMenu` (Snake modes, Asteroids touch controls, Bomberman players/level code).
   Call `requestLayout()` when the touch buttons depend on the state (e.g. none on the start screen).
   Register it in the `games` array in `src/main.ts` with a name, an icon drawn from shapes, and `create`.
+- A game bigger than the screen uses a camera (Polygon Horde: world units, zoom from the screen size, the scene
+  draws inside `ctx.translate/scale`), and `Effects.drawParticles` inside it, `drawFlash` outside.
 - **Input is unified:** a touch `Button` has `id` = a keyboard code (`'ArrowLeft'`, `'Space'`, ...).
   Games only call `input.down(code)` (held) / `input.hit(code)` (just pressed) / read `input.taps`.
   Never add separate touch and keyboard code paths in a game.
@@ -132,5 +137,6 @@ Before calling a change done, check:
 3. ✅ Asteroids — see `src/games/asteroids/README.md`
 4. ✅ Bomberman — see `src/games/bomberman/README.md`
 5. ✅ Tower Defense (rules designed with the user; see its README before changing gameplay)
+6. 🚧 Polygon Horde — first playable (rules designed with the user; see `src/games/horde/README.md`)
 
 Build one game at a time and demo it before starting the next.

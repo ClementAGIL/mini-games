@@ -1,7 +1,7 @@
 // The Tower Defense side panel: status lines, speed controls, tower shop, info about what is selected,
 // and the selected tower's actions.
 import { fitSize, text } from '../../engine/draw';
-import { clamp, type Rect } from '../../engine/math';
+import { clamp, compact, type Rect } from '../../engine/math';
 import { drawButton, type RectButton } from '../../engine/ui';
 import {
   BOSS_POWER,
@@ -18,7 +18,7 @@ import {
   type Kind,
 } from './data';
 import { AREA_TOWERS, TARGET_LABEL, type Enemy, type Tower } from './model';
-import { compact, drawShape } from './shapes';
+import { drawShape } from './shapes';
 import type { TowerDefense } from './towerdefense';
 
 const GAP = 6; // between panel buttons

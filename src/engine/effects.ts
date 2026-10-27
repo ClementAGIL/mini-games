@@ -1,5 +1,5 @@
 // Short-lived visual feedback shared by the games: floating score popups, explosion sparks and a screen flash.
-// Positions are in screen pixels.
+// Positions are in screen pixels, or world units when drawn inside a camera transform.
 import { INK, line, text } from './draw';
 import { rand } from './math';
 
@@ -64,6 +64,12 @@ export class Effects {
   }
 
   draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
+    this.drawParticles(ctx);
+    this.drawFlash(ctx, w, h);
+  }
+
+  /** Sparks and popups only, e.g. inside a camera transform (positions are then world positions). */
+  drawParticles(ctx: CanvasRenderingContext2D) {
     for (const s of this.sparks) {
       ctx.globalAlpha = s.life / SPARK_TIME;
       line(ctx, s.x, s.y, s.x - s.vx * 0.05, s.y - s.vy * 0.05);
@@ -72,11 +78,15 @@ export class Effects {
       ctx.globalAlpha = p.life / POPUP_TIME;
       text(ctx, p.text, p.x, p.y, 14);
     }
-    if (this.flashLeft > 0) {
-      ctx.globalAlpha = 0.35 * (this.flashLeft / this.flashTime);
-      ctx.fillStyle = INK;
-      ctx.fillRect(0, 0, w, h);
-    }
+    ctx.globalAlpha = 1;
+  }
+
+  /** The screen flash, over the whole `w` × `h` screen. */
+  drawFlash(ctx: CanvasRenderingContext2D, w: number, h: number) {
+    if (this.flashLeft <= 0) return;
+    ctx.globalAlpha = 0.35 * (this.flashLeft / this.flashTime);
+    ctx.fillStyle = INK;
+    ctx.fillRect(0, 0, w, h);
     ctx.globalAlpha = 1;
   }
 }

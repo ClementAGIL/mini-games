@@ -47,3 +47,10 @@ export function seededRandom(seed: number): () => number {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
+/** Short number for small spaces: 950, 12.3k, 4.5M. */
+export function compact(n: number) {
+  if (n < 10000) return `${n}`;
+  if (n < 1e6) return `${(n / 1000).toFixed(n < 1e5 ? 1 : 0)}k`;
+  return `${(n / 1e6).toFixed(1)}M`;
+}

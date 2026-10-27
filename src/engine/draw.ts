@@ -55,6 +55,13 @@ export function regular(x: number, y: number, r: number, n: number, rot: number)
   });
 }
 
+/** Corners of a five-pointed star centred on (x, y), pointing up. */
+export function starPoints(x: number, y: number, r: number): Vec[] {
+  return regular(x, y, r * 1.1, 10, -Math.PI / 2).map((p, i) =>
+    i % 2 ? { x: x + (p.x - x) * 0.45, y: y + (p.y - y) * 0.45 } : p,
+  );
+}
+
 // Isosceles triangle centred on (x, y), pointing along `angle`.
 export function triangle(
   ctx: CanvasRenderingContext2D,

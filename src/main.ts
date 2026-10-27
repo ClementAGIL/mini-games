@@ -1,10 +1,11 @@
 import { onResize, setupCanvas, view } from './engine/canvas';
-import { circle, clear, overlay, rect, triangle } from './engine/draw';
+import { circle, clear, overlay, rect, regular, triangle } from './engine/draw';
 import { input, type Button } from './engine/input';
 import { startLoop } from './engine/loop';
 import { onLayoutRequest, type GameEntry, type Scene } from './engine/scene';
 import { Asteroids } from './games/asteroids/asteroids';
 import { Bomberman } from './games/bomberman/bomberman';
+import { Horde } from './games/horde/horde';
 import { Snake } from './games/snake/snake';
 import { TowerDefense } from './games/towerdefense/towerdefense';
 import { Menu } from './menu/menu';
@@ -41,6 +42,14 @@ const games: GameEntry[] = [
     },
     create: () => new TowerDefense(),
     keep: true,
+  },
+  {
+    name: 'Polygon Horde',
+    icon: (ctx, x, y, s) => {
+      circle(ctx, x, y, s * 0.3, true);
+      for (const p of regular(x, y, s * 0.85, 5, 0)) triangle(ctx, p.x, p.y, s * 0.22, Math.atan2(y - p.y, x - p.x));
+    },
+    create: () => new Horde(),
   },
 ];
 

@@ -1,13 +1,7 @@
 // The Tower Defense shapes (one per tower/enemy kind) and small drawing helpers shared by the map and the panel.
-import { circle, INK, poly, regular } from '../../engine/draw';
+import { circle, INK, poly, regular, starPoints } from '../../engine/draw';
 import type { Vec } from '../../engine/math';
 import type { Kind } from './data';
-
-function starPoints(x: number, y: number, r: number): Vec[] {
-  return regular(x, y, r * 1.1, 10, -Math.PI / 2).map((p, i) =>
-    i % 2 ? { x: x + (p.x - x) * 0.45, y: y + (p.y - y) * 0.45 } : p,
-  );
-}
 
 /** Corners of a kind's shape, or null for the circle. */
 function shapePoints(kind: Kind, x: number, y: number, r: number): Vec[] | null {
@@ -45,11 +39,4 @@ export function drawShape(ctx: CanvasRenderingContext2D, kind: Kind, x: number, 
 /** Small filled star: the combo badge. */
 export function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
   poly(ctx, starPoints(x, y, r), true);
-}
-
-/** Short number for small spaces: 950, 12.3k, 4.5M. */
-export function compact(n: number) {
-  if (n < 10000) return `${n}`;
-  if (n < 1e6) return `${(n / 1000).toFixed(n < 1e5 ? 1 : 0)}k`;
-  return `${(n / 1e6).toFixed(1)}M`;
 }

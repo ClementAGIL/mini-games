@@ -1,11 +1,12 @@
 // Things drawn on top of the Tower Defense map: build preview with combo bonuses, next-wave strip,
 // short notes and the game-over summary.
 import { circle, INK, label, PAPER, rect, text, textWidth } from '../../engine/draw';
+import { compact } from '../../engine/math';
 import { comboPartners, enemyColor, KINDS, towerColor, towerStats, type Kind } from './data';
 import type { TdGame } from './game';
 import { COLS, ROWS } from './path';
 import type { MapView, ToScreen, WorldUi } from './render';
-import { compact, drawShape } from './shapes';
+import { drawShape } from './shapes';
 
 /**
  * While choosing where to build: partner towers on the map get a dashed outline; the tile tapped once shows

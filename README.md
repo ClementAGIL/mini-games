@@ -9,6 +9,7 @@ circles, squares and triangles. Runs in any browser and as an Android app.
 | Asteroids     | ✅ Playable | [src/games/asteroids/README.md](src/games/asteroids/README.md)       |
 | Bomberman     | ✅ Playable | [src/games/bomberman/README.md](src/games/bomberman/README.md)       |
 | Tower Defense | ✅ Playable | [src/games/towerdefense/README.md](src/games/towerdefense/README.md) |
+| Polygon Horde | 🚧 First playable | [src/games/horde/README.md](src/games/horde/README.md) |
 
 ## Requirements
 
