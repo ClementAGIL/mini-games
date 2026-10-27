@@ -30,10 +30,10 @@ Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own 
 | -------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ----- | ----- | ------ |
 | Circle   | green  | Pulse    | hits every enemy in range                                                                                                                                   | 60   | 1.5   | 0.8/s | 10     |
 | Diamond  | red    | Flame    | cone toward the target + burn (2 s)                                                                                                                         | 80   | 1.5   | 5/s   | 1.6    |
-| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 2.1   | 2/s   | 5      |
+| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 2.5   | 2/s   | 5      |
 | Square   | blue   | Sniper   | instant long-range shot                                                                                                                                     | 100  | 4.9   | 0.5/s | 21     |
 | Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = dart damage, 4 s, up to 5 stacks)                                                                          | 70   | 2.1   | 1/s   | 5.8    |
-| Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 2.5   | 1.2/s | 4.6    |
+| Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 2.1   | 1.2/s | 4.6    |
 | Hexagon  | cyan   | Frost    | small damage to all in range + **slow 25%** for 1.5 s (39% from level 10)                                                                                   | 70   | 1.5   | 1/s   | 5      |
 | Octagon  | pink   | Electric | lightning: 100% to the target, then **70% to the next 2 enemies behind it** on the path (8 from level 10); each jump reaches at most 1.5 tiles further back | 75   | 2     | 0.9/s | 8      |
 

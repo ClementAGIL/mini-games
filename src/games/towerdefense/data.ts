@@ -96,10 +96,10 @@ export interface TowerStats {
 export const TOWERS: Record<Kind, TowerStats> = {
   circle: { name: 'Pulse', attack: 'hits all in range', cost: 60, range: 1.5, rate: 0.8, damage: 10 },
   diamond: { name: 'Flame', attack: 'cone + burn', cost: 80, range: 1.5, rate: 5, damage: 1.6 },
-  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 2.1, rate: 2, damage: 5 },
+  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 2.5, rate: 2, damage: 5 },
   square: { name: 'Sniper', attack: 'long range, big hit', cost: 100, range: 4.9, rate: 0.5, damage: 21 },
   star: { name: 'Poison', attack: 'stacking poison', cost: 70, range: 2.1, rate: 1, damage: 5.8 },
-  pentagon: { name: 'Piercer', attack: 'pierces enemies', cost: 45, range: 2.5, rate: 1.2, damage: 4.6 },
+  pentagon: { name: 'Piercer', attack: 'pierces enemies', cost: 45, range: 2.1, rate: 1.2, damage: 4.6 },
   hexagon: { name: 'Frost', attack: 'slows all in range', cost: 70, range: 1.5, rate: 1, damage: 5 },
   octagon: { name: 'Electric', attack: 'chain lightning', cost: 75, range: 2, rate: 0.9, damage: 8 },
 };
