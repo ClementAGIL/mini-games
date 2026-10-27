@@ -14,7 +14,7 @@ export const ARTIFACT_SLOTS = 5;
 export const MAX_LEVEL = 5; // weapon level
 export const ELITE_EVERY = 60; // seconds
 export const BOSS_EVERY = 180;
-export const MAX_ENEMIES = 500;
+export const MAX_ENEMIES = 600;
 export const MAX_GEMS = 300;
 export const SPAWN_MARGIN = 60; // enemies appear this far outside the view
 export const RECYCLE = 2; // enemies further than this × the spawn distance are moved back near the player
@@ -36,6 +36,13 @@ export const damageScale = (t: number) => 1 + 0.1 * minutes(t);
 export const speedScale = (t: number) => Math.min(1.4, 1 + 0.02 * minutes(t));
 /** Enemies spawned per second. */
 export const spawnRate = (t: number) => 1.5 * (0.8 + 0.45 * minutes(t) + 0.02 * minutes(t) ** 2);
+// The player level also makes the horde grow, so a strong build keeps being pushed: tougher, faster, more enemies.
+/** Enemy HP multiplier at player `level`: +3% per level (×1.9 at level 31, ×2.5 at level 51), no limit. */
+export const levelHp = (level: number) => 1 + 0.03 * (level - 1);
+/** Enemy speed multiplier at player `level`: +1% per level, at most ×1.5 (level 51). */
+export const levelSpeed = (level: number) => Math.min(1.5, 1 + 0.01 * (level - 1));
+/** Spawn rate multiplier at player `level`: +4% per level (×2.2 at level 31, ×3 at level 51). */
+export const levelSpawn = (level: number) => 1 + 0.04 * (level - 1);
 /** XP needed to go from `level` to the next. */
 export const xpToNext = (level: number) => Math.round(4 + 3 * level + 0.25 * level * level);
 

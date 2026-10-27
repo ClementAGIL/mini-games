@@ -1,6 +1,16 @@
 // Spawning: how many enemies appear and where, which kinds, elites every minute, bosses every 3 minutes.
 import { dist, rand, type Vec } from '../../engine/math';
-import { BOSS_EVERY, ELITE_EVERY, ENEMIES, MAX_ENEMIES, RECYCLE, RUNNER_PACK, spawnRate, type EnemyKind } from './data';
+import {
+  BOSS_EVERY,
+  ELITE_EVERY,
+  ENEMIES,
+  MAX_ENEMIES,
+  RECYCLE,
+  RUNNER_PACK,
+  levelSpawn,
+  spawnRate,
+  type EnemyKind,
+} from './data';
 import { spawnBoss } from './bosses';
 import { makeEnemy } from './foes';
 import type { Run } from './game';
@@ -14,7 +24,7 @@ export class Director {
   private bosses = 0;
 
   update(run: Run, dt: number) {
-    this.due += spawnRate(run.time) * dt;
+    this.due += spawnRate(run.time) * levelSpawn(run.level) * dt;
     for (; this.due >= 1; this.due--) if (run.enemies.length < MAX_ENEMIES) this.spawnGroup(run);
     if (run.time >= this.nextBoss) {
       this.nextBoss += BOSS_EVERY;
@@ -25,7 +35,7 @@ export class Director {
     if (run.time >= this.nextElite) {
       // No elite on boss minutes: the boss is the event.
       if (this.nextElite % BOSS_EVERY !== 0)
-        run.enemies.push(makeEnemy(this.pickKind(run.time), this.spawnPoint(run), run.time, { elite: true }));
+        run.enemies.push(makeEnemy(this.pickKind(run.time), this.spawnPoint(run), run, { elite: true }));
       this.nextElite += ELITE_EVERY;
     }
     this.recycle(run);
@@ -37,7 +47,7 @@ export class Director {
     const count = kind === 'runner' ? RUNNER_PACK : 1;
     for (let i = 0; i < count; i++) {
       const pos = { x: at.x + rand(-20, 20), y: at.y + rand(-20, 20) };
-      run.enemies.push(makeEnemy(kind, pos, run.time));
+      run.enemies.push(makeEnemy(kind, pos, run));
     }
   }
 

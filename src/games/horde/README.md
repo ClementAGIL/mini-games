@@ -20,7 +20,15 @@ Everything grows with the run clock (`t` in minutes):
 | Enemy damage          | +10% per minute                                    |
 | Enemy speed           | +2% per minute, at most +40%                       |
 
-At most 500 enemies at once (boss minions and splits can go a little over). Enemies that fall far behind are moved back near you.
+Your **level** also makes the horde grow (`L` = your level), on top of the time:
+
+| What        | Growth with your level                       |
+| ----------- | -------------------------------------------- |
+| Enemy HP    | +3% per level (×1.9 at level 31, ×2.5 at 51) |
+| Enemy speed | +1% per level, at most +50% (level 51)       |
+| Spawn rate  | +4% per level (×2.2 at level 31, ×3 at 51)   |
+
+At most 600 enemies at once (boss minions and splits can go a little over). Enemies that fall far behind are moved back near you.
 New enemy types join over time (see the table). **Elites** come every minute and a **Boss** every 3 minutes (see Bosses)
 (no elite on boss minutes); each boss has +60% HP over the previous one on top of the normal growth.
 

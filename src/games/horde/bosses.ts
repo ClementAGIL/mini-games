@@ -60,7 +60,7 @@ const around = (c: Vec, r: number, i: number, n: number, turn = 0): Vec => ({
 
 function spawnAround(run: Run, kind: 'grunt' | 'egg', c: Vec, r: number, n: number) {
   for (let i = 0; i < n; i++) {
-    const e = makeEnemy(kind, around(c, r, i, n, rand(0, 1)), run.time);
+    const e = makeEnemy(kind, around(c, r, i, n, rand(0, 1)), run);
     if (kind === 'egg') e.ttl = EGG_HATCH;
     run.enemies.push(e);
   }
@@ -173,7 +173,7 @@ const blink: Behavior = (e, run) =>
     const turn = rand(0, Math.PI * 2);
     e.pos = around(run.player.pos, BLINK_R, 0, 3, turn);
     for (let i = 1; i < 3; i++) {
-      const decoy = makeEnemy('decoy', around(run.player.pos, BLINK_R, i, 3, turn), run.time);
+      const decoy = makeEnemy('decoy', around(run.player.pos, BLINK_R, i, 3, turn), run);
       Object.assign(decoy, { bossKind: 'mirror', r: e.r, ttl: DECOY_LIFE });
       run.enemies.push(decoy);
     }
@@ -248,7 +248,7 @@ export function spawnBoss(run: Run, n: number, at: Vec) {
   const fury = 1 + FURY_PER_LOOP * Math.floor((n - 1) / BOSS_ORDER.length);
   const count = kind === 'twins' ? 2 : 1;
   for (let slot = 0; slot < count; slot++) {
-    const boss = makeEnemy('boss', { x: at.x + slot * 80, y: at.y }, run.time, { hpMult });
+    const boss = makeEnemy('boss', { x: at.x + slot * 80, y: at.y }, run, { hpMult });
     Object.assign(boss, { bossKind: kind, r: def.r, fury, slot, phaseLeft: PHASE });
     run.enemies.push(boss);
   }
@@ -274,8 +274,7 @@ export function expire(run: Run, e: Enemy) {
   e.hp = 0;
   run.fx.burst(e.pos.x, e.pos.y, 5, 60);
   if (e.kind === 'egg') {
-    for (let i = 0; i < HATCH_INTO; i++)
-      run.enemies.push(makeEnemy('runner', around(e.pos, 12, i, HATCH_INTO), run.time));
+    for (let i = 0; i < HATCH_INTO; i++) run.enemies.push(makeEnemy('runner', around(e.pos, 12, i, HATCH_INTO), run));
   }
 }
 

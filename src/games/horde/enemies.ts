@@ -161,6 +161,6 @@ export function onDeath(run: Run, e: Enemy) {
   if (e.kind !== 'splitter') return;
   for (let i = 0; i < SPLIT_INTO; i++) {
     const pos = { x: e.pos.x + rand(-e.r, e.r), y: e.pos.y + rand(-e.r, e.r) };
-    run.enemies.push(makeEnemy('grunt', pos, run.time));
+    run.enemies.push(makeEnemy('grunt', pos, run));
   }
 }

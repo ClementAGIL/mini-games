@@ -11,6 +11,8 @@ import {
   ELITE_SIZE,
   ENEMIES,
   hpScale,
+  levelHp,
+  levelSpeed,
   SHOOTER_RELOAD,
   SHOT_SPEED,
   speedScale,
@@ -29,10 +31,12 @@ export interface EnemyOptions {
   hpMult?: number;
 }
 
-export function makeEnemy(kind: EnemyKind, pos: Vec, t: number, opts: EnemyOptions = {}): Enemy {
+/** A new enemy, grown by the run time (HP, damage, speed) and the player level (HP, speed). */
+export function makeEnemy(kind: EnemyKind, pos: Vec, run: Run, opts: EnemyOptions = {}): Enemy {
   const def = ENEMIES[kind];
+  const t = run.time;
   const elite = !!opts.elite;
-  const hp = def.hp * hpScale(t) * (elite ? ELITE_HP : 1) * (opts.hpMult ?? 1);
+  const hp = def.hp * hpScale(t) * levelHp(run.level) * (elite ? ELITE_HP : 1) * (opts.hpMult ?? 1);
   return {
     kind,
     pos,
@@ -40,7 +44,7 @@ export function makeEnemy(kind: EnemyKind, pos: Vec, t: number, opts: EnemyOptio
     r: def.r * (elite ? ELITE_SIZE : 1),
     hp,
     maxHp: hp,
-    speed: def.speed * speedScale(t),
+    speed: def.speed * speedScale(t) * levelSpeed(run.level),
     damage: def.damage * damageScale(t) * (elite ? ELITE_DAMAGE : 1),
     xp: def.xp,
     elite,
