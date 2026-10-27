@@ -53,7 +53,7 @@
   the ship only test the rocks near them instead of all of them.
 - Bullets have a lifetime (~1 s), a fire cooldown and a max count on screen (6, or 18 with triple shot).
 - Drag is frame-rate independent: velocity is multiplied by `DRAG ^ dt` (45% kept per second).
-- The joystick uses `input.drags()`: any finger that went down outside the buttons, on the left half of the screen.
+- The joystick uses `input.drags()` (drawn with `stick()` from `engine/draw.ts`): any finger that went down outside the buttons, on the left half of the screen.
 
 ## Possible improvements
 

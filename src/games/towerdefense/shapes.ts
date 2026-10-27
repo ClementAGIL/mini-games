@@ -1,6 +1,6 @@
 // The Tower Defense shapes (one per tower/enemy kind) and small drawing helpers shared by the map and the panel.
 import { circle, INK, poly, regular } from '../../engine/draw';
-import { clamp, type Vec } from '../../engine/math';
+import type { Vec } from '../../engine/math';
 import type { Kind } from './data';
 
 function starPoints(x: number, y: number, r: number): Vec[] {
@@ -45,14 +45,6 @@ export function drawShape(ctx: CanvasRenderingContext2D, kind: Kind, x: number, 
 /** Small filled star: the combo badge. */
 export function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
   poly(ctx, starPoints(x, y, r), true);
-}
-
-/** Thin progress bar (HP, shield, experience). */
-export function bar(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, ratio: number, light = false) {
-  ctx.fillStyle = light ? '#999' : INK;
-  ctx.fillRect(x, y, w * clamp(ratio, 0, 1), 3);
-  ctx.fillStyle = INK;
-  ctx.strokeRect(x, y, w, 3);
 }
 
 /** Short number for small spaces: 950, 12.3k, 4.5M. */

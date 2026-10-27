@@ -1,5 +1,5 @@
 // Asteroids: ship, rocks that split, UFO, hyperspace, power-ups, extra lives; buttons or a virtual joystick on touch.
-import { circle, overlay, text } from '../../engine/draw';
+import { circle, overlay, stick as drawStick, text } from '../../engine/draw';
 import { Effects } from '../../engine/effects';
 import { SpatialGrid } from '../../engine/grid';
 import { input, type Button } from '../../engine/input';
@@ -7,7 +7,7 @@ import { circlesHit, rand, type Vec } from '../../engine/math';
 import { requestLayout, type Scene } from '../../engine/scene';
 import { loadBest, saveBest } from '../../engine/storage';
 import { ChoiceMenu } from '../../engine/ui';
-import { drawHud, drawItem, drawRock, drawShip, drawStick, drawUfo } from './draw';
+import { drawHud, drawItem, drawRock, drawShip, drawUfo } from './draw';
 import {
   DROP_CHANCE,
   dropItem,

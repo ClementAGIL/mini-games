@@ -1,6 +1,6 @@
 // Drawing of the Tower Defense map: grid, path, towers, enemies and effects. Overlays (build preview,
 // next-wave strip, notes, summary) are in overlays.ts.
-import { circle, INK, line, PAPER, polyline, rect, text } from '../../engine/draw';
+import { bar, circle, INK, line, PAPER, polyline, rect, text } from '../../engine/draw';
 import type { Vec } from '../../engine/math';
 import { FLAME_CONE } from './combat';
 import { BOSS_ZONE, CURVE_LEVELS, enemyColor, towerColor, towerStats, xpNeeded, type Kind } from './data';
@@ -8,7 +8,7 @@ import type { TdGame } from './game';
 import { AREA_TOWERS, type Enemy, type Fx, type Tower } from './model';
 import { drawBuildPreview, drawNextWave, drawNotes } from './overlays';
 import { COLS, ROWS } from './path';
-import { bar, drawShape, star } from './shapes';
+import { drawShape, star } from './shapes';
 
 /** Where the map is on screen: top-left corner and tile size, in CSS pixels. */
 export interface MapView {

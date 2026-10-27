@@ -1,6 +1,5 @@
-// Asteroids drawing: rocks, ship (flame, shield), UFO, power-up items, HUD and the virtual joystick.
+// Asteroids drawing: rocks, ship (flame, shield), UFO, power-up items, and the HUD.
 import { circle, line, poly, text, triangle } from '../../engine/draw';
-import type { Vec } from '../../engine/math';
 import {
   ITEM_R,
   ROCK_R,
@@ -86,15 +85,4 @@ export function drawHud(ctx: CanvasRenderingContext2D, hud: Hud, w: number) {
     x += 54;
   }
   text(ctx, hud.hyperReady ? 'Hyperspace ready' : 'Hyperspace…', 16, 80, 11, 'left');
-}
-
-/** Virtual joystick: base circle where the finger went down, knob where it is now (clamped to the base). */
-export function drawStick(ctx: CanvasRenderingContext2D, start: Vec, pos: Vec, radius: number) {
-  const dx = pos.x - start.x;
-  const dy = pos.y - start.y;
-  const k = Math.min(1, radius / (Math.hypot(dx, dy) || 1));
-  ctx.globalAlpha = 0.4;
-  circle(ctx, start.x, start.y, radius);
-  circle(ctx, start.x + dx * k, start.y + dy * k, radius * 0.4, true);
-  ctx.globalAlpha = 1;
 }

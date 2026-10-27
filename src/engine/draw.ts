@@ -1,4 +1,4 @@
-import type { Vec } from './math';
+import { clamp, type Vec } from './math';
 
 export const INK = '#000';
 export const PAPER = '#fff';
@@ -126,4 +126,31 @@ export function overlay(ctx: CanvasRenderingContext2D, w: number, h: number, tit
   rect(ctx, w / 2 - bw / 2, h / 2 - bh / 2, bw, bh);
   text(ctx, title, w / 2, h / 2 - 22, 32);
   text(ctx, sub, w / 2, h / 2 + 28, 16);
+}
+
+/** Thin progress bar (HP, shield, experience). */
+export function bar(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  ratio: number,
+  light = false,
+  h = 3,
+) {
+  ctx.fillStyle = light ? '#999' : INK;
+  ctx.fillRect(x, y, w * clamp(ratio, 0, 1), h);
+  ctx.fillStyle = INK;
+  ctx.strokeRect(x, y, w, h);
+}
+
+/** Virtual joystick: base circle where the finger went down, knob where it is now (clamped to the base). */
+export function stick(ctx: CanvasRenderingContext2D, start: Vec, pos: Vec, radius: number) {
+  const dx = pos.x - start.x;
+  const dy = pos.y - start.y;
+  const k = Math.min(1, radius / (Math.hypot(dx, dy) || 1));
+  ctx.globalAlpha = 0.4;
+  circle(ctx, start.x, start.y, radius);
+  circle(ctx, start.x + dx * k, start.y + dy * k, radius * 0.4, true);
+  ctx.globalAlpha = 1;
 }
