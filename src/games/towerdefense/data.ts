@@ -95,13 +95,13 @@ export interface TowerStats {
 
 export const TOWERS: Record<Kind, TowerStats> = {
   circle: { name: 'Pulse', attack: 'hits all in range', cost: 60, range: 1.5, rate: 0.8, damage: 10 },
-  diamond: { name: 'Flame', attack: 'cone + burn', cost: 80, range: 1.5, rate: 5, damage: 1.4 },
-  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 2.1, rate: 2, damage: 3.4 },
-  square: { name: 'Sniper', attack: 'long range, big hit', cost: 100, range: 4.9, rate: 0.5, damage: 25 },
-  star: { name: 'Poison', attack: 'stacking poison', cost: 70, range: 2.1, rate: 1, damage: 5 },
-  pentagon: { name: 'Piercer', attack: 'pierces enemies', cost: 45, range: 2.5, rate: 1.2, damage: 4 },
+  diamond: { name: 'Flame', attack: 'cone + burn', cost: 80, range: 1.5, rate: 5, damage: 1.6 },
+  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 2.1, rate: 2, damage: 5 },
+  square: { name: 'Sniper', attack: 'long range, big hit', cost: 100, range: 4.9, rate: 0.5, damage: 21 },
+  star: { name: 'Poison', attack: 'stacking poison', cost: 70, range: 2.1, rate: 1, damage: 5.8 },
+  pentagon: { name: 'Piercer', attack: 'pierces enemies', cost: 45, range: 2.5, rate: 1.2, damage: 4.6 },
   hexagon: { name: 'Frost', attack: 'slows all in range', cost: 70, range: 1.5, rate: 1, damage: 5 },
-  octagon: { name: 'Electric', attack: 'chain lightning', cost: 75, range: 2, rate: 0.9, damage: 7 },
+  octagon: { name: 'Electric', attack: 'chain lightning', cost: 75, range: 2, rate: 0.9, damage: 8 },
 };
 
 // ---------- combos ----------
@@ -119,8 +119,14 @@ export const COMBO_STAT_LABEL: Record<ComboStat, string> = {
   dot: 'DoT',
 };
 
-/** Each partner tower on one of the 8 tiles around a tower adds this much to the tower's combo stat. */
-export const COMBO_PER_PARTNER = 0.1;
+/**
+ * What each partner tower on one of the 8 tiles around a tower adds, in order: diminishing returns up to +30%
+ * at 5 partners. Long-range towers can be surrounded by 8 partners; this keeps them from getting +80%.
+ */
+export const COMBO_STEPS = [0.1, 0.08, 0.06, 0.04, 0.02];
+
+/** Total combo bonus for `partners` partner towers: 0.1, 0.18, 0.24, 0.28, 0.3, then 0.3. */
+export const comboTotal = (partners: number) => COMBO_STEPS.slice(0, partners).reduce((a, b) => a + b, 0);
 
 export interface Combo {
   name: string;
@@ -244,14 +250,14 @@ interface EnemyBase {
 }
 
 export const ENEMIES: Record<Kind, EnemyBase> = {
-  circle: { power: 'Regeneration', hp: 26, speed: 1.4, reward: 4, lives: 1, regen: 1.5 },
-  diamond: { power: 'Shield', hp: 26, speed: 1.4, reward: 5, lives: 2, shield: 22 },
-  triangle: { power: 'Speed', hp: 22, speed: 3.6, reward: 5, lives: 1 },
-  square: { power: 'Tank', hp: 180, speed: 0.95, reward: 8, lives: 3 },
-  star: { power: 'Armor', hp: 50, speed: 1.5, reward: 6, lives: 2, armor: 5 },
-  pentagon: { power: 'Splitter', hp: 42, speed: 1.6, reward: 4, lives: 1 },
-  hexagon: { power: 'Blink', hp: 34, speed: 1.7, reward: 6, lives: 2 },
-  octagon: { power: 'Summoner', hp: 55, speed: 1.4, reward: 6, lives: 2, summon: 2 },
+  circle: { power: 'Regeneration', hp: 30, speed: 1.6, reward: 4, lives: 1, regen: 2 },
+  diamond: { power: 'Shield', hp: 28, speed: 1.5, reward: 5, lives: 2, shield: 32 },
+  triangle: { power: 'Speed', hp: 26, speed: 3.6, reward: 5, lives: 1 },
+  square: { power: 'Tank', hp: 210, speed: 0.95, reward: 8, lives: 3 },
+  star: { power: 'Armor', hp: 58, speed: 1.5, reward: 6, lives: 2, armor: 5 },
+  pentagon: { power: 'Splitter', hp: 48, speed: 1.6, reward: 4, lives: 1 },
+  hexagon: { power: 'Blink', hp: 40, speed: 1.7, reward: 6, lives: 2 },
+  octagon: { power: 'Summoner', hp: 64, speed: 1.4, reward: 6, lives: 2, summon: 2 },
 };
 
 export interface EnemyStats {

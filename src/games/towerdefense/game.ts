@@ -5,8 +5,8 @@ import { loadBest, saveBest } from '../../engine/storage';
 import { updateArrows, updateBullets, updateTower } from './combat';
 import {
   BOSS_WAVE_HEAL,
-  COMBO_PER_PARTNER,
   comboPartners,
+  comboTotal,
   INTEREST_RATE,
   SELL_RATIO,
   START_COINS,
@@ -41,7 +41,7 @@ import { CLEARED_DELAY, FIRST_WAVE_DELAY, makeQueue, waveTime } from './waves';
 
 /** What placing a tower of `kind` on a tile would change: its own bonus and the boost given to each partner. */
 export interface ComboPreview {
-  self: number; // total bonus, e.g. 0.2 for two partners
+  self: number; // total bonus, e.g. 0.18 for two partners
   bonus: Bonus; // the same, by stat
   partners: { tower: Tower; gain: number }[];
 }
@@ -210,14 +210,18 @@ export class TdGame {
     return this.towers.filter((t) => Math.max(Math.abs(t.tx - tx), Math.abs(t.ty - ty)) === 1);
   }
 
-  /** Bonus a tower of `kind` gets on (tx, ty): +10% of its combo stat per partner tower around it. */
+  /**
+   * Bonus a tower of `kind` gets on (tx, ty): the diminishing total for its number of partners around it,
+   * shared between its two combo stats in proportion to the partners boosting each.
+   */
   private comboBonus(kind: Kind, tx: number, ty: number) {
     const links = comboPartners(kind);
     const partners = this.neighbors(tx, ty).filter((o) => links.some((l) => l.partner === o.kind));
+    const share = comboTotal(partners.length) / partners.length;
     const bonus: Bonus = {};
     for (const o of partners) {
       const stat = links.find((l) => l.partner === o.kind)!.stat;
-      bonus[stat] = (bonus[stat] ?? 0) + COMBO_PER_PARTNER;
+      bonus[stat] = (bonus[stat] ?? 0) + share;
     }
     return { bonus, partners };
   }
@@ -234,9 +238,10 @@ export class TdGame {
   comboPreview(kind: Kind, tx: number, ty: number): ComboPreview {
     const { bonus, partners } = this.comboBonus(kind, tx, ty);
     return {
-      self: partners.length * COMBO_PER_PARTNER,
+      self: comboTotal(partners.length),
       bonus,
-      partners: partners.map((tower) => ({ tower, gain: COMBO_PER_PARTNER })),
+      // Each partner gets one more partner: what that adds depends on how many it already has.
+      partners: partners.map((tower) => ({ tower, gain: comboTotal(tower.partners + 1) - comboTotal(tower.partners) })),
     };
   }
 

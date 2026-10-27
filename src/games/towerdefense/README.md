@@ -29,24 +29,24 @@ Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own 
 | Shape    | Color  | Tower    | Attack                                                                                                                                                      | Cost | Range | Rate  | Damage |
 | -------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ----- | ----- | ------ |
 | Circle   | green  | Pulse    | hits every enemy in range                                                                                                                                   | 60   | 1.5   | 0.8/s | 10     |
-| Diamond  | red    | Flame    | cone toward the target + burn (2 s)                                                                                                                         | 80   | 1.5   | 5/s   | 1.4    |
-| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 2.1   | 2/s   | 3.4    |
-| Square   | blue   | Sniper   | instant long-range shot                                                                                                                                     | 100  | 4.9   | 0.5/s | 25     |
-| Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = dart damage, 4 s, up to 5 stacks)                                                                          | 70   | 2.1   | 1/s   | 5      |
-| Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 2.5   | 1.2/s | 4      |
+| Diamond  | red    | Flame    | cone toward the target + burn (2 s)                                                                                                                         | 80   | 1.5   | 5/s   | 1.6    |
+| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 2.1   | 2/s   | 5      |
+| Square   | blue   | Sniper   | instant long-range shot                                                                                                                                     | 100  | 4.9   | 0.5/s | 21     |
+| Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = dart damage, 4 s, up to 5 stacks)                                                                          | 70   | 2.1   | 1/s   | 5.8    |
+| Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 2.5   | 1.2/s | 4.6    |
 | Hexagon  | cyan   | Frost    | small damage to all in range + **slow 25%** for 1.5 s (39% from level 10)                                                                                   | 70   | 1.5   | 1/s   | 5      |
-| Octagon  | pink   | Electric | lightning: 100% to the target, then **70% to the next 2 enemies behind it** on the path (8 from level 10); each jump reaches at most 1.5 tiles further back | 75   | 2     | 0.9/s | 7      |
+| Octagon  | pink   | Electric | lightning: 100% to the target, then **70% to the next 2 enemies behind it** on the path (8 from level 10); each jump reaches at most 1.5 tiles further back | 75   | 2     | 0.9/s | 8      |
 
 | Enemy    | Power                                                                                      | HP  | Speed | Coins per kill | Lives lost at the end |
 | -------- | ------------------------------------------------------------------------------------------ | --- | ----- | -------------- | --------------------- |
-| Circle   | **Regeneration**: heals 1.5 HP/s                                                           | 26  | 1.4   | 4              | 1                     |
-| Diamond  | **Shield**: 22-point shield absorbs damage first, refills after 2 s without being hit      | 26  | 1.4   | 5              | 2                     |
-| Triangle | **Speed**: very fast, low HP                                                               | 22  | 3.6   | 5              | 1                     |
-| Square   | **Tank**: lots of HP, slow                                                                 | 180 | 0.95  | 8              | 3                     |
-| Star     | **Armor**: every direct hit is reduced by 5 (at least 20% still goes through)              | 50  | 1.5   | 6              | 2                     |
-| Pentagon | **Splitter**: on death splits into 3 small, faster copies (1 coin, 1 life each)            | 42  | 1.6   | 4              | 1                     |
-| Hexagon  | **Blink**: teleports 3 tiles forward every 4 s (slowed enemies blink less often)           | 34  | 1.7   | 6              | 2                     |
-| Octagon  | **Summoner**: drops a small minion behind itself every 2 s (15% of its HP, 1 coin, 1 life) | 55  | 1.4   | 6              | 2                     |
+| Circle   | **Regeneration**: heals 2 HP/s                                                             | 30  | 1.6   | 4              | 1                     |
+| Diamond  | **Shield**: 32-point shield absorbs damage first, refills after 2 s without being hit      | 28  | 1.5   | 5              | 2                     |
+| Triangle | **Speed**: very fast, low HP                                                               | 26  | 3.6   | 5              | 1                     |
+| Square   | **Tank**: lots of HP, slow                                                                 | 210 | 0.95  | 8              | 3                     |
+| Star     | **Armor**: every direct hit is reduced by 5 (at least 20% still goes through)              | 58  | 1.5   | 6              | 2                     |
+| Pentagon | **Splitter**: on death splits into 3 small, faster copies (1 coin, 1 life each)            | 48  | 1.6   | 4              | 1                     |
+| Hexagon  | **Blink**: teleports 3 tiles forward every 4 s (slowed enemies blink less often)           | 40  | 1.7   | 6              | 2                     |
+| Octagon  | **Summoner**: drops a small minion behind itself every 2 s (15% of its HP, 1 coin, 1 life) | 64  | 1.4   | 6              | 2                     |
 
 - Coins per kill also get **+1 every 12 waves** (+1 at wave 12, +5 at wave 60).
 - **Bosses**: ×10 HP and coins, ×5 lives lost, ×5 shield/regeneration, ×2 armor, slower, drawn bigger.
@@ -89,10 +89,13 @@ On the map, a slowed enemy has a dashed outline and a poisoned one a dot in its 
 ## Combos
 
 Two towers that are combo partners boost each other when placed **next to each other** (on one of the 8 tiles around).
-**Each partner adds +10%** to the combo stat, and it stacks: a tower between two partners gets +20%.
+Partners stack with **diminishing returns**: the 1st partner adds **+10%**, then +8%, +6%, +4%, +2%, and partners after
+the 5th add nothing. Total: +10%, +18%, +24%, +28%, **+30% max** (5 partners). When the partners boost two different
+stats, the total is shared between them in proportion (e.g. 3 Rifles + 1 Poison around a Sniper: +28% split into
++21% fire rate and +7% damage). The table shows the bonus of a single partner.
 Every tower kind is in 2 combos:
 
-| Combo         | Towers             | Bonus per partner                          |
+| Combo         | Towers             | Bonus with one partner                     |
 | ------------- | ------------------ | ------------------------------------------ |
 | Cold snap     | Pulse + Frost      | Pulse +10% damage, Frost +10% slow         |
 | Thermal shock | Frost + Flame      | Frost +10% fire rate, Flame +10% damage    |
@@ -104,7 +107,7 @@ Every tower kind is in 2 combos:
 | Overcharge    | Electric + Pulse   | Electric +10% fire rate, Pulse +10% range  |
 
 - **Placing a tower** is two taps: the first tap on a free tile shows a preview (ghost tower, range, **its combo bonus
-  above it**, and **the +10% each neighbouring partner would gain below them**); tap the same tile again to build, or
+  above it**, and **what each neighbouring partner would gain below them**); tap the same tile again to build, or
   another tile to compare. While a tower type is chosen, its partner towers on the map get a dashed outline.
 - A tower with an active combo shows a small **★ badge**; selecting it lists its bonuses in the panel.
 
