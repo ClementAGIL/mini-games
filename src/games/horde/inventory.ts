@@ -4,7 +4,6 @@ import { WEAPON_KINDS, WEAPONS, type Mods, type WeaponKind } from './arsenal';
 import { luckFactor, MAX_LEVEL, RARITIES, STAT_KINDS, STATS, WEAPON_SLOTS } from './data';
 import type { Card, OwnedWeapon } from './model';
 
-const CARDS = 3;
 /** Share of stat cards among the possible picks: a stat is offered as often as one weapon option. */
 const STAT_OPTIONS = 4;
 
@@ -32,19 +31,23 @@ export function rollRarity(luck: number): number {
 
 export const statValue = (card: { stat: keyof Mods; rarity: number }) => STATS[card.stat].values[card.rarity];
 
+/** What a card offers, for banishing: a weapon or a stat kind ('' for heal / max HP, never banished). */
+export const cardKey = (c: Card) => (c.kind === 'weapon' ? c.weapon : c.kind === 'stat' ? c.stat : '');
+
 /**
- * Three different cards from one pool: new weapons while a slot is free, +1 level on owned weapons, and stat cards
- * (each with its own rarity roll). Heal / max HP only fill in when the pool runs dry.
+ * `count` different cards from one pool: new weapons while a slot is free, +1 level on owned weapons, and stat cards
+ * (each with its own rarity roll), minus the banished ones. Heal / max HP only fill in when the pool runs dry.
  */
-export function levelUpCards(weapons: OwnedWeapon[], luck: number): Card[] {
+export function levelUpCards(weapons: OwnedWeapon[], luck: number, count: number, banished: Set<string>): Card[] {
   const upgrades = weapons.filter((w) => w.level < MAX_LEVEL).map((w) => w.kind);
   const fresh = weapons.length < WEAPON_SLOTS ? WEAPON_KINDS.filter((k) => !weapons.some((w) => w.kind === k)) : [];
   const weaponCards: Card[] = [...upgrades, ...fresh].map((weapon) => ({ kind: 'weapon', weapon }));
   const statCards: Card[] = shuffle([...STAT_KINDS])
     .slice(0, STAT_OPTIONS)
     .map((stat) => ({ kind: 'stat', stat, rarity: rollRarity(luck) }));
-  const cards = shuffle([...weaponCards, ...statCards]).slice(0, CARDS);
-  for (const filler of [{ kind: 'heal' }, { kind: 'maxhp' }] as Card[]) if (cards.length < CARDS) cards.push(filler);
+  const pool = [...weaponCards, ...statCards].filter((c) => !banished.has(cardKey(c)));
+  const cards = shuffle(pool).slice(0, count);
+  for (const filler of [{ kind: 'heal' }, { kind: 'maxhp' }] as Card[]) if (cards.length < count) cards.push(filler);
   return cards;
 }
 

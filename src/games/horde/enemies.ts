@@ -28,6 +28,7 @@ import {
   SPLIT_INTO,
   type EnemyKind,
 } from './data';
+import { HOURGLASS } from './artifacts';
 import type { Run } from './game';
 import type { Enemy } from './model';
 
@@ -201,10 +202,11 @@ const BEHAVIOR: Record<EnemyKind, Behavior> = {
 
 export function updateEnemies(run: Run, dt: number) {
   const keep = Math.pow(KNOCK_KEEP, dt);
+  const pace = run.relics.has('hourglass') ? HOURGLASS : 1;
   for (const e of run.enemies) {
     e.flash -= dt;
     // A chilled enemy lives slower: it moves, aims and reloads at a reduced pace.
-    BEHAVIOR[e.kind](e, run, e.slowLeft > 0 ? dt * (1 - e.slow) : dt);
+    BEHAVIOR[e.kind](e, run, pace * (e.slowLeft > 0 ? dt * (1 - e.slow) : dt));
     if ((e.slowLeft -= dt) <= 0) e.slow = 0;
     if (e.burnLeft > 0) {
       e.burnLeft -= dt;

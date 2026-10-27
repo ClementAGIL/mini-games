@@ -2,6 +2,7 @@
 import { circle, INK, line, poly, polyline, rect, regular, starPoints, triangle } from '../../engine/draw';
 import type { Vec } from '../../engine/math';
 import type { WeaponKind } from './arsenal';
+import { ARTIFACTS, type ArtifactKind } from './artifacts';
 import { STATS, type StatKind } from './data';
 
 type PathFn = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number) => void;
@@ -157,6 +158,51 @@ const WEAPON_ICONS: Record<WeaponKind, PathFn> = {
     circle(ctx, x - r * 0.5, y + r * 0.5, r * 0.2, true);
   },
 };
+
+const ARTIFACT_ICONS: Record<ArtifactKind, PathFn> = {
+  drone: (ctx, x, y, r) => rect(ctx, x - r * 0.35, y - r * 0.35, r * 0.7, r * 0.7, true),
+  fourth: (ctx, x, y, r) => {
+    for (let i = 0; i < 4; i++) rect(ctx, x - r * 0.55 + i * r * 0.3, y - r * 0.3, r * 0.2, r * 0.6, true);
+  },
+  reroll: (ctx, x, y, r) => {
+    rect(ctx, x - r * 0.45, y - r * 0.45, r * 0.9, r * 0.9);
+    circle(ctx, x - r * 0.2, y - r * 0.2, r * 0.1, true);
+    circle(ctx, x + r * 0.2, y + r * 0.2, r * 0.1, true);
+  },
+  phoenix: (ctx, x, y, r) => triangle(ctx, x, y, r * 0.55, -Math.PI / 2, true),
+  twin: (ctx, x, y, r) => {
+    circle(ctx, x - r * 0.25, y, r * 0.22, true);
+    circle(ctx, x + r * 0.25, y, r * 0.22, true);
+  },
+  fang: (ctx, x, y, r) => triangle(ctx, x, y, r * 0.55, Math.PI / 2, true),
+  shield: (ctx, x, y, r) => circle(ctx, x, y, r * 0.45),
+  gravity: (ctx, x, y, r) => {
+    circle(ctx, x, y, r * 0.15, true);
+    circle(ctx, x, y, r * 0.5);
+  },
+  hourglass: (ctx, x, y, r) => {
+    triangle(ctx, x, y - r * 0.25, r * 0.3, Math.PI / 2, true);
+    triangle(ctx, x, y + r * 0.25, r * 0.3, -Math.PI / 2, true);
+  },
+  sentinel: (ctx, x, y, r) => {
+    rect(ctx, x - r * 0.3, y - r * 0.1, r * 0.6, r * 0.4, true);
+    line(ctx, x, y, x + r * 0.5, y - r * 0.5);
+  },
+  prism: (ctx, x, y, r) => poly(ctx, regular(x, y, r * 0.5, 4, 0), true),
+  banish: (ctx, x, y, r) => {
+    line(ctx, x - r * 0.4, y - r * 0.4, x + r * 0.4, y + r * 0.4);
+    line(ctx, x - r * 0.4, y + r * 0.4, x + r * 0.4, y - r * 0.4);
+  },
+};
+
+/** An artifact: a hexagon in its color with a black symbol. */
+export function drawArtifact(ctx: CanvasRenderingContext2D, kind: ArtifactKind, x: number, y: number, r: number) {
+  ctx.fillStyle = ARTIFACTS[kind].color;
+  poly(ctx, regular(x, y, r, 6, 0), true);
+  ctx.fillStyle = INK;
+  poly(ctx, regular(x, y, r, 6, 0));
+  ARTIFACT_ICONS[kind](ctx, x, y, r);
+}
 
 /** Black icon of a weapon (the shape it fires). */
 export function drawWeapon(ctx: CanvasRenderingContext2D, kind: WeaponKind, x: number, y: number, r: number) {

@@ -201,13 +201,22 @@ export function baseStats(kind: WeaponKind, level: number, evolved: boolean): We
   return evolved ? def.evo.stats : def.levels[level - 1];
 }
 
-/** Final stats: Might multiplies damage, Haste divides cooldowns, Area grows sizes, Pierce adds to `extra`. */
-export function weaponStats(kind: WeaponKind, level: number, evolved: boolean, mods: Mods): WeaponStats {
+/**
+ * Final stats: Might multiplies damage, Haste divides cooldowns, Area grows sizes, Pierce adds to `extra`;
+ * `bonusCount` (Twin core) adds to the count of weapons that have one.
+ */
+export function weaponStats(
+  kind: WeaponKind,
+  level: number,
+  evolved: boolean,
+  mods: Mods,
+  bonusCount = 0,
+): WeaponStats {
   const b = baseStats(kind, level, evolved);
   return {
     damage: b.damage * (1 + mods.damage),
     cooldown: b.cooldown / (1 + mods.haste),
-    count: b.count,
+    count: b.count + (WEAPONS[kind].labels[0] ? bonusCount : 0),
     size: b.size * (1 + mods.area),
     extra: b.extra + (WEAPONS[kind].pierce ? mods.pierce : 0),
   };

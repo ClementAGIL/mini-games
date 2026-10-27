@@ -10,6 +10,7 @@ export const PICKUP_R = 60; // gems and loot closer than this fly to the player
 export const PICKUP_SPEED = 380;
 export const MAGNET_SPEED = 700;
 export const WEAPON_SLOTS = 5;
+export const ARTIFACT_SLOTS = 5;
 export const MAX_LEVEL = 5; // weapon level
 export const ELITE_EVERY = 60; // seconds
 export const BOSS_EVERY = 180;

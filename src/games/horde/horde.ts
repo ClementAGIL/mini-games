@@ -4,27 +4,18 @@ import { ANY_DIR, input, type Button } from '../../engine/input';
 import type { Vec } from '../../engine/math';
 import type { Scene } from '../../engine/scene';
 import { loadBest, saveBest } from '../../engine/storage';
-import { tapButtons, type RectButton } from '../../engine/ui';
 import { VIEW } from './data';
 import { Run } from './game';
 import { drawHud } from './hud';
-import { levelUpCards } from './inventory';
-import type { Card } from './model';
+import { artifactButtons, choose, drawArtifactChoice, LevelUp } from './levelup';
 import { drawWorld } from './render';
-import { cardButtons, describeCard, drawGameOver, drawLevelUp, type CardView } from './screens';
+import { drawGameOver } from './screens';
 
-type Screen = 'play' | 'levelup' | 'over';
+type Screen = 'play' | 'levelup' | 'artifact' | 'over';
 
 const STICK_R = 45; // px: dragging this far from the touch point is full speed
 const STICK_DEAD = 6;
 const INPUT_DELAY = 0.4; // s: a new screen ignores input this long, so a finger still moving can't pick by mistake
-
-/** Key n presses button n, a tap presses the button under it. */
-function choose(buttons: RectButton[]) {
-  const key = buttons.findIndex((_, i) => input.hit(`Digit${i + 1}`));
-  if (key >= 0) buttons[key].onTap();
-  else tapButtons(buttons, input.taps);
-}
 
 export class Horde implements Scene {
   pausable = true;
@@ -35,8 +26,7 @@ export class Horde implements Scene {
   private zoom = 1;
   private screen: Screen = 'play';
   private wait = 0;
-  private cards: Card[] = [];
-  private views: CardView[] = [];
+  private levelUp = new LevelUp();
 
   layout(w: number, h: number): Button[] {
     this.w = w;
@@ -52,34 +42,23 @@ export class Horde implements Scene {
     if (next !== this.screen) this.enter(next);
     if (this.screen === 'play') return this.run.update(dt, this.move());
     if (this.wait > 0) return;
-    if (this.screen === 'levelup') choose(this.cardButtons());
+    if (this.screen === 'levelup') this.levelUp.update(this.run, this.w, this.h);
+    else if (this.screen === 'artifact') choose(artifactButtons(this.run, this.w, this.h));
     else if (input.confirmed()) this.restart();
   }
 
   private currentScreen(): Screen {
     const r = this.run;
     if (r.dead) return 'over';
+    if (r.artifactChoice) return 'artifact';
     return r.pendingLevels > 0 ? 'levelup' : 'play';
   }
 
   private enter(screen: Screen) {
     this.screen = screen;
     this.wait = INPUT_DELAY;
-    if (screen === 'levelup') this.dealCards();
+    if (screen === 'levelup') this.levelUp.deal(this.run);
     if (screen === 'over' && this.run.time > this.best) saveBest('horde', (this.best = Math.floor(this.run.time)));
-  }
-
-  private dealCards() {
-    this.cards = levelUpCards(this.run.weapons, this.run.cardLuck);
-    this.views = this.cards.map((c) => describeCard(c, this.run));
-  }
-
-  private cardButtons() {
-    return cardButtons(this.w, this.h, this.cards.length, (i) => {
-      this.run.pickCard(this.cards[i]);
-      if (this.run.pendingLevels > 0) this.dealCards(); // several levels at once: deal again
-      this.wait = INPUT_DELAY / 2;
-    });
   }
 
   private restart() {
@@ -110,7 +89,8 @@ export class Horde implements Scene {
     drawHud(ctx, this.run, w, h, this.best);
     const drag = input.drags()[0];
     if (this.screen === 'play' && drag) drawStick(ctx, drag.start, drag.pos, STICK_R);
-    if (this.screen === 'levelup') drawLevelUp(ctx, w, h, this.cardButtons(), this.views);
+    if (this.screen === 'levelup') this.levelUp.draw(ctx, this.run, w, h);
+    if (this.screen === 'artifact') drawArtifactChoice(ctx, this.run, w, h);
     if (this.screen === 'over') drawGameOver(ctx, w, h, this.run, this.best);
   }
 }

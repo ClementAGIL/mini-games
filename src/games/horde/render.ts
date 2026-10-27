@@ -3,6 +3,8 @@ import { bar, circle, INK, line, LINE } from '../../engine/draw';
 import { DASH_SPEED, DASH_TIME, ENEMIES, PLAYER_R } from './data';
 import type { Run } from './game';
 import { drawEnemy, drawPickup } from './shapes';
+import { ARTIFACTS } from './artifacts';
+import { drawArtifact } from './icons';
 import { drawAttacks } from './visuals';
 
 const GRID = 64; // world units between background dots
@@ -61,4 +63,17 @@ function drawPlayer(ctx: CanvasRenderingContext2D, run: Run) {
   const blink = pl.invulnerable > 0 && Math.floor(run.time * 12) % 2 === 0;
   if (!blink && !run.dead) circle(ctx, pl.pos.x, pl.pos.y, PLAYER_R, true);
   bar(ctx, pl.pos.x - 15, pl.pos.y + PLAYER_R + 6, 30, pl.hp / pl.maxHp);
+  drawHelpers(ctx, run);
+}
+
+/** Artifact helpers: the shield orb ring, the collector drone, the sentinel turret. */
+function drawHelpers(ctx: CanvasRenderingContext2D, run: Run) {
+  const { relics, player } = run;
+  if (relics.has('shield') && relics.shieldLeft <= 0) {
+    ctx.strokeStyle = ARTIFACTS.shield.color;
+    circle(ctx, player.pos.x, player.pos.y, PLAYER_R + 6);
+    ctx.strokeStyle = INK;
+  }
+  if (relics.drone) drawArtifact(ctx, 'drone', relics.drone.x, relics.drone.y, 7);
+  if (relics.sentinel) drawArtifact(ctx, 'sentinel', relics.sentinel.x, relics.sentinel.y, 9);
 }

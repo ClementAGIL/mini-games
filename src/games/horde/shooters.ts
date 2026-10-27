@@ -1,6 +1,6 @@
 // Weapons that fire projectiles: Dart, Shard, Shotgun, Boomerang, Saw, Homing, Flamer. Their flight is in
 // projectiles.ts.
-import { rand } from '../../engine/math';
+import { rand, type Vec } from '../../engine/math';
 import type { WeaponStats } from './arsenal';
 import type { Run } from './game';
 import type { Missile, MissileKind, OwnedWeapon } from './model';
@@ -116,5 +116,11 @@ const flamer: Fire = (run, w, s) => {
   }
   return true;
 };
+
+/** One dart from `from` toward `at`: the Sentinel's shot. */
+export function shootDart(run: Run, w: OwnedWeapon, from: Vec, at: Vec, damage: number) {
+  const s = { damage, cooldown: 0, count: 1, size: 5, extra: 0 };
+  launch(run, w, s, 'dart', angleTo(from, at), { pos: { ...from }, left: 0, life: 1.2 });
+}
 
 export const SHOOTERS = { dart, shard, shotgun, boomerang, saw, homing, flamer };

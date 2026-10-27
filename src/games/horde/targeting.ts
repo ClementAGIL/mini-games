@@ -5,7 +5,8 @@ import { weaponStats } from './arsenal';
 import type { Run } from './game';
 import type { Enemy, OwnedWeapon } from './model';
 
-export const statsOf = (run: Run, w: OwnedWeapon) => weaponStats(w.kind, w.level, w.evolved, run.mods);
+export const statsOf = (run: Run, w: OwnedWeapon) =>
+  weaponStats(w.kind, w.level, w.evolved, run.mods, run.relics.has('twin') ? 1 : 0);
 
 /** Nearest living enemy to `from` within `range`, skipping `skip`. */
 export function nearest(run: Run, from: Vec, range: number, skip?: Set<Enemy>): Enemy | null {

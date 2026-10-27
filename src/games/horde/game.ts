@@ -18,6 +18,7 @@ import {
   SPAWN_MARGIN,
   xpToNext,
 } from './data';
+import { Artifacts, PRISM_XP, type ArtifactKind } from './artifacts';
 import { Director } from './director';
 import { onDeath, updateEnemies } from './enemies';
 import { dropLoot } from './loot';
@@ -64,6 +65,9 @@ export class Run {
   /** Pending level-ups from chests: their cards are rolled with extra luck. */
   luckyLevels = 0;
   boss: Enemy | null = null;
+  relics = new Artifacts();
+  /** Artifacts offered by a boss chest: the scene shows them until one is picked. */
+  artifactChoice: ArtifactKind[] | null = null;
   orbitAngle = 0;
   fx = new Effects();
   grid = new SpatialGrid<Enemy>(64);
@@ -103,6 +107,7 @@ export class Run {
     updateWeapons(this, dt);
     updateAttacks(this, dt);
     this.updatePickups(dt);
+    this.relics.update(this, dt);
     this.cleanup(dt);
   }
 
@@ -120,9 +125,11 @@ export class Run {
   hurtPlayer(amount: number) {
     const p = this.player;
     if (p.invulnerable > 0 || this.dead) return;
-    p.hp -= amount;
     p.invulnerable = INVULNERABLE;
     this.fx.burst(p.pos.x, p.pos.y, 6, 90);
+    if (this.relics.absorb()) return;
+    p.hp -= amount;
+    if (p.hp <= 0 && this.relics.revive(this)) this.bomb();
   }
 
   heal(amount: number) {
@@ -144,6 +151,7 @@ export class Run {
     this.kills++;
     this.fx.burst(e.pos.x, e.pos.y, e.boss ? 24 : 6, e.boss ? 200 : 90);
     if (e === this.boss) this.boss = null;
+    this.relics.onKill(this);
     onDeath(this, e);
     dropLoot(this, e);
   }
@@ -151,7 +159,7 @@ export class Run {
   // ---------- XP and level-ups ----------
 
   private gainXp(value: number) {
-    this.xp += value;
+    this.xp += value * (this.relics.has('prism') ? PRISM_XP : 1);
     for (let need = xpToNext(this.level); this.xp >= need; need = xpToNext(this.level)) {
       this.xp -= need;
       this.level++;
@@ -202,17 +210,29 @@ export class Run {
     }
   }
 
-  private collect(k: Pickup) {
+  pickArtifact(k: ArtifactKind) {
+    this.relics.add(k, this);
+    this.artifactChoice = null;
+  }
+
+  collect(k: Pickup) {
     k.taken = true;
     if (k.kind === 'xp') return this.gainXp(k.value);
     this.fx.popup(k.kind, k.pos.x, k.pos.y - 10);
     if (k.kind === 'heal') this.heal(HEAL_DROP);
     else if (k.kind === 'magnet') for (const g of this.pickups) g.pulled ||= g.kind === 'xp';
     else if (k.kind === 'bomb') this.bomb();
-    else if (k.kind === 'chest') {
-      this.pendingLevels += k.value;
-      this.luckyLevels += k.value;
+    else if (k.kind === 'chest') this.freeLevels(k.value);
+    else if (k.kind === 'relic') {
+      // A boss chest: choose an artifact, or 3 lucky level-ups once all artifact slots are full.
+      if (this.relics.full) this.freeLevels(3);
+      else this.artifactChoice = this.relics.offer();
     }
+  }
+
+  private freeLevels(n: number) {
+    this.pendingLevels += n;
+    this.luckyLevels += n;
   }
 
   /** Kills every normal enemy on screen. */

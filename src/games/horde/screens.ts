@@ -66,7 +66,7 @@ function backdrop(ctx: CanvasRenderingContext2D, w: number, h: number, title: st
   ctx.fillRect(0, 0, w, h);
   ctx.globalAlpha = 1;
   ctx.fillStyle = INK;
-  text(ctx, title, w / 2, y, 26);
+  text(ctx, title, w / 2, y, fitSize(ctx, title, w - 24, 26));
 }
 
 function box(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
@@ -113,16 +113,19 @@ function drawCard(ctx: CanvasRenderingContext2D, b: RectButton, v: CardView, ind
   });
 }
 
-export function drawLevelUp(
+/** Cards over the faded world, a title above them, and optional small buttons (`tools`) below. */
+export function drawCards(
   ctx: CanvasRenderingContext2D,
   w: number,
   h: number,
   buttons: RectButton[],
   views: CardView[],
-  title = 'LEVEL UP',
+  title: string,
+  tools: RectButton[] = [],
 ) {
   backdrop(ctx, w, h, title, buttons[0].y - 28);
   buttons.forEach((b, i) => drawCard(ctx, b, views[i], i));
+  for (const t of tools) drawButton(ctx, t, 12);
 }
 
 // ---------- game over ----------

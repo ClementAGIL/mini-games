@@ -8,6 +8,7 @@ import { FIRE_COLOR, FROST_COLOR } from './visuals';
 
 const MAGNET_COLOR = '#d32f2f';
 const CHEST_COLOR = '#ffca28';
+const RELIC_COLOR = '#ab47bc';
 
 /** Corners of an enemy shape facing `rot`, or null for the circle. */
 function shapePoints(shape: Shape, x: number, y: number, r: number, rot: number): Vec[] | null {
@@ -90,6 +91,8 @@ export function drawPickup(ctx: CanvasRenderingContext2D, k: Pickup, time: numbe
     ctx.strokeStyle = INK;
     return;
   }
-  paint(ctx, regular(x, y + bob, 12, 4, Math.PI / 4), x, y, 12, CHEST_COLOR); // chest
-  line(ctx, x - 8, y + bob - 2, x + 8, y + bob - 2);
+  // Chest: elite (small, yellow) or boss (big, purple)
+  const size = k.kind === 'relic' ? 17 : 12;
+  paint(ctx, regular(x, y + bob, size, 4, Math.PI / 4), x, y, size, k.kind === 'relic' ? RELIC_COLOR : CHEST_COLOR);
+  line(ctx, x - size * 0.65, y + bob - 2, x + size * 0.65, y + bob - 2);
 }

@@ -133,7 +133,7 @@ export interface Blast {
   color: string;
 }
 
-export type PickupKind = 'xp' | 'heal' | 'magnet' | 'bomb' | 'chest';
+export type PickupKind = 'xp' | 'heal' | 'magnet' | 'bomb' | 'chest' | 'relic'; // relic: a boss chest
 
 export interface Pickup {
   kind: PickupKind;

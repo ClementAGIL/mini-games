@@ -97,6 +97,26 @@ Chilled enemies get a blue ring, burning ones a small flame. Bosses are not pull
 
 A level 5 weapon **evolves** as soon as you have taken at least one card of its stat.
 
+### Artifacts (boss chests)
+
+A boss drops a **big purple chest**: the game pauses and offers **3 artifacts** you don't own; pick one. **5 artifact
+slots**; once they are full, a boss chest gives 3 lucky level-ups instead. Artifacts show next to the weapons.
+
+| Artifact        | Effect                                                                     |
+| --------------- | -------------------------------------------------------------------------- |
+| Collector drone | a small drone flies to the XP and loot around you (300 range) and takes it |
+| Fourth card     | level-ups show 4 cards                                                     |
+| Reroll die      | 2 rerolls on every level-up (R key or button)                              |
+| Phoenix         | once per run, at 0 HP you come back at 50% HP and the screen is cleared    |
+| Twin core       | every weapon with a count (darts, squares, beams…) gets +1                 |
+| Vampire fang    | heal 1 HP every 10 kills                                                   |
+| Shield orb      | a ring around you blocks one hit, then recharges in 15 s                   |
+| Gravity well    | pulls every XP gem to you every 30 s                                       |
+| Hourglass       | all enemies 15% slower                                                     |
+| Sentinel        | a turret follows you and shoots darts (14 dmg, grows with Might and level) |
+| Prism of XP     | +30% XP                                                                    |
+| Banish          | 3 times per run, remove a weapon or stat from the level-up pool (B key)    |
+
 ### Loot
 
 | Drop         | Where                  | Effect                                     |

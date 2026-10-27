@@ -1,8 +1,8 @@
-// Polygon Horde HUD: XP bar, run time, level and kills, player HP, boss bar, weapons and stats (bottom left).
+// Polygon Horde HUD: XP bar, run time, level and kills, player HP, boss bar, weapons, artifacts and stats (bottom left).
 import { bar, rect, text } from '../../engine/draw';
 import { STAT_KINDS, WEAPON_SLOTS, xpToNext, type StatKind } from './data';
 import type { Run } from './game';
-import { drawStat, drawWeapon } from './icons';
+import { drawArtifact, drawStat, drawWeapon } from './icons';
 
 const SLOT = 30; // inventory slot size in px
 
@@ -25,7 +25,7 @@ export function drawHud(ctx: CanvasRenderingContext2D, run: Run, w: number, h: n
   drawInventory(ctx, run, h);
 }
 
-// Weapons on one row (level in the corner, ★ once evolved), the stats taken on the row below.
+// Weapons then artifacts on one row (level in the corner, ★ once evolved), the stats taken on the row below.
 function drawInventory(ctx: CanvasRenderingContext2D, run: Run, h: number) {
   const y1 = h - SLOT * 2 - 24;
   const y2 = h - SLOT - 12;
@@ -39,6 +39,8 @@ function drawInventory(ctx: CanvasRenderingContext2D, run: Run, h: number) {
     drawWeapon(ctx, wp.kind, x + SLOT / 2, y1 + SLOT / 2 - 2, SLOT * 0.32);
     text(ctx, wp.evolved ? '★' : `${wp.level}`, x + SLOT - 5, y1 + SLOT - 6, 9);
   }
+  const artifactsX = 12 + WEAPON_SLOTS * (SLOT + 4) + 16;
+  run.relics.owned.forEach((k, i) => drawArtifact(ctx, k, artifactsX + i * (SLOT + 2), y1 + SLOT / 2, SLOT * 0.42));
   STAT_KINDS.filter((k) => run.mods[k] > 0).forEach((k, i) => {
     const x = 12 + i * (SLOT + 10) + SLOT / 2;
     drawStat(ctx, k, x, y2 + 8, 8);
