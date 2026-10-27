@@ -162,7 +162,7 @@ function infoLines(scene: TowerDefense): string[] {
 function towerLines(scene: TowerDefense): string[] {
   const t = scene.selected!;
   const st = towerStats(t.kind, t.level, t.bonus);
-  const xp = `XP ${compact(t.xp)}/${compact(xpNeeded(t.level))}`;
+  const xp = `XP ${compact(Math.floor(t.xp))}/${compact(xpNeeded(t.level))}`;
   const combos = t.partners ? `★ Combo ${bonusText(t.bonus)}` : `Combo with ${partnerNames(t.kind)}`;
   const dealt = `dealt ${compact(Math.round(t.damageDone))}`;
   return [`${TOWERS[t.kind].name} Lv${t.level} · ${xp} · ${dealt}`, statsLine(t.kind, st), combos];

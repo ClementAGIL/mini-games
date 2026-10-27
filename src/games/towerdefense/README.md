@@ -120,9 +120,13 @@ Every tower kind is in 2 combos:
   level-10 values), so a rich player can keep up with the endless enemy growth.
 - **Upgrade** with coins: each level costs 35% more than the previous one (60% of the tower price for level 2).
   Example for the Sniper (100): 60, 81, 109, 148, 199, 269, 363, 490, 662.
-- **Experience**: every kill gives the tower 1 XP (a boss counts as 5). When the bar under the tower is full, the tower
-  gains a **free level** and the bar resets. Kills needed per level grow ×2.45: 10, 25, 60, 147, 360, 883, 2163, 5299, 12983.
-  The kill goes to the last tower that damaged the enemy (burn and poison count for the tower that applied them).
+- **Experience**: every kill is worth 1 XP (a boss 10), **shared by every tower that damaged the enemy**, in proportion
+  to the damage each one did (burn and poison count for the tower that applied them). Towers early on the path that
+  wear enemies down get experience too. Enemies reaching the end give no XP; a sold tower's share is lost.
+  When the bar under the tower is full, the tower gains a **free level** and the bar resets. XP needed per level grows
+  ×1.5: 15, 23, 34, 51, 76, 114, 171, 256, 384, 577 (level 10), 33253 (level 20). It grows faster than the upgrade
+  price (×1.35), so XP stays a bonus next to coins: one XP saves about 4 coins on a level 1 Sniper upgrade, 1.5 at
+  level 10 and 0.5 at level 20 (half that for a 50-coin Rifle).
 - **XP discount**: the upgrade price is reduced by how full the bar is (half-full bar = half price). Buying the upgrade
   uses up that experience: the bar goes back to 0.
 - The tower's color gets **darker with each level** up to level 10 (light yellow → dark yellow); above 10 the level number

@@ -33,7 +33,7 @@ export const SLOW_TIME = 1.5;
 export const ARMOR_MIN = 0.2; // armor can never block more than 80% of a hit
 export const BLINK_EVERY = 4; // seconds between blinks (slowed enemies blink less often)
 export const BOSS_WAVE_HEAL = 0.3; // share of lost lives given back when a boss wave is finished
-export const BOSS_XP = 5; // a boss kill counts as 5 kills for tower experience
+export const BOSS_XP = 10; // a boss kill counts as 10 kills for tower experience
 // Streak: every 5 waves in a row without losing a life adds +5% coins per kill, at most +25%.
 export const STREAK_STEP = 5;
 export const STREAK_BONUS = 0.05;
@@ -229,8 +229,11 @@ export function towerStats(kind: Kind, level: number, bonus: Bonus = {}) {
 export const upgradeCost = (kind: Kind, level: number) =>
   Math.round(TOWERS[kind].cost * 0.6 * Math.pow(1.35, level - 1));
 
-/** Kills needed to go from `level` to `level + 1` for free: 10, 25, 60, 147, 360, ... */
-export const xpNeeded = (level: number) => Math.round(10 * Math.pow(2.45, level - 1));
+/**
+ * XP needed to go from `level` to `level + 1` for free: 15, 23, 34, 51, 76, ... (×1.5). It grows faster than the
+ * upgrade price (×1.35), so XP is a bonus next to coins, not a second way to upgrade.
+ */
+export const xpNeeded = (level: number) => Math.round(15 * Math.pow(1.5, level - 1));
 
 /** Light shade at level 1, darker with every level up to level 10. */
 export const towerColor = (kind: Kind, level: number) =>

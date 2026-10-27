@@ -35,8 +35,9 @@ export interface Enemy extends EnemyStats {
   auraArmor: number;
   auraArmorTime: number;
   leaked: boolean;
-  // Tower credited with the kill (experience): last one that damaged it, directly or by burn/poison.
-  lastTower: Tower | null;
+  // Damage dealt by each tower (burn and poison count for the tower that applied them): the kill's XP is shared
+  // between them in proportion.
+  hits: Map<Tower, number>;
   burnBy: Tower | null;
   poisonBy: Tower | null;
 }

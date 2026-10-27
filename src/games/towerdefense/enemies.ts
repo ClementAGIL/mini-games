@@ -53,7 +53,7 @@ export function spawnEnemy(
     auraArmor: 0,
     auraArmorTime: 0,
     leaked: false,
-    lastTower: null,
+    hits: new Map(),
     burnBy: null,
     poisonBy: null,
   });
@@ -167,10 +167,20 @@ export function removeDead(game: TdGame) {
   for (const e of dead) {
     if (e.leaked) continue;
     game.coins += Math.round(e.reward * game.streakMult());
-    if (e.lastTower && game.towers.includes(e.lastTower)) game.gainXp(e.lastTower, e.boss ? BOSS_XP : 1);
+    shareXp(game, e);
     splitCopies(game, e);
     if (inSwarm(game, e)) spawnEnemy(game, e.kind, e.wave, false, smallCopy(e), e.d, true);
   }
+}
+
+// A kill is worth 1 XP (a boss BOSS_XP), shared by the towers that damaged the enemy in proportion to their damage,
+// so towers wearing enemies down early on the path get experience too. Sold towers' shares are lost.
+function shareXp(game: TdGame, e: Enemy) {
+  const xp = e.boss ? BOSS_XP : 1;
+  let total = 0;
+  for (const amount of e.hits.values()) total += amount;
+  if (total <= 0) return;
+  for (const [tower, amount] of e.hits) if (game.towers.includes(tower)) game.gainXp(tower, (xp * amount) / total);
 }
 
 // Pentagon boss: any normal enemy dying near it leaves one small copy (copies and minions don't, or it would never end).

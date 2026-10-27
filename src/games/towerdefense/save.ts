@@ -7,11 +7,11 @@ import type { TdGame } from './game';
 import type { Enemy, GameStats, QueuedEnemy, Spawner, TargetMode, Tower } from './model';
 
 const KEY = 'towerdefense.save';
-const VERSION = 3; // bump when the saved shape changes: older saves are then ignored
+const VERSION = 4; // bump when the saved shape changes: older saves are then ignored
 
 type SavedTower = Omit<Tower, 'bonus' | 'partners'>;
-type SavedEnemy = Omit<Enemy, 'lastTower' | 'burnBy' | 'poisonBy' | 'lastHit'> & {
-  lastTower: number;
+type SavedEnemy = Omit<Enemy, 'hits' | 'burnBy' | 'poisonBy' | 'lastHit'> & {
+  hits: [number, number][]; // [tower index, damage]
   burnBy: number;
   poisonBy: number;
   lastHit: number | null; // -Infinity does not survive JSON
@@ -43,7 +43,7 @@ export function saveGame(game: TdGame) {
     towers: game.towers.map(({ bonus: _b, partners: _p, ...t }) => t),
     enemies: game.enemies.map((e) => ({
       ...e,
-      lastTower: index(e.lastTower),
+      hits: [...e.hits].map(([t, amount]): [number, number] => [index(t), amount]),
       burnBy: index(e.burnBy),
       poisonBy: index(e.poisonBy),
       lastHit: Number.isFinite(e.lastHit) ? e.lastHit : null,
@@ -86,7 +86,7 @@ export function loadGame(game: TdGame) {
   const tower = (i: number) => game.towers[i] ?? null;
   game.enemies = data.enemies.map((e) => ({
     ...e,
-    lastTower: tower(e.lastTower),
+    hits: new Map(e.hits.flatMap(([i, amount]) => (game.towers[i] ? [[game.towers[i], amount] as const] : []))),
     burnBy: tower(e.burnBy),
     poisonBy: tower(e.poisonBy),
     lastHit: e.lastHit ?? -Infinity,

@@ -177,18 +177,18 @@ export function damage(game: TdGame, e: Enemy, amount: number, from: Tower) {
   if (armor > 0) d = Math.max(d * ARMOR_MIN, d - armor);
   e.hp -= d;
   e.lastHit = game.time;
-  e.lastTower = from;
-  addDamageStat(game, from, absorbed + d);
+  addDamageStat(game, e, from, absorbed + d);
 }
 
 /** Damage over time (burn, poison): ignores shield and armor, which is what makes Poison the counter to Armor. */
 export function dotDamage(game: TdGame, e: Enemy, amount: number, from: Tower | null) {
   e.hp -= amount;
-  e.lastTower = from;
-  if (from) addDamageStat(game, from, amount);
+  if (from) addDamageStat(game, e, from, amount);
 }
 
-function addDamageStat(game: TdGame, from: Tower, amount: number) {
+/** Totals for the tower and the game-over summary, and the tower's share of this enemy's XP. */
+function addDamageStat(game: TdGame, e: Enemy, from: Tower, amount: number) {
+  e.hits.set(from, (e.hits.get(from) ?? 0) + amount);
   from.damageDone += amount;
   game.stats.damage[from.kind] = (game.stats.damage[from.kind] ?? 0) + amount;
 }
