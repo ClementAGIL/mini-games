@@ -8,7 +8,7 @@
   left edge and ends on another side, and is **73–120 tiles long** (about 113 on average). Between two parts of the
   path there are **mostly 2 or 3 free tiles** (sometimes 1), so you can build on every side of it, and the path winds
   over the whole map: of 300 generated paths, the one with the most tiles within 3 tiles of it is kept.
-- Build towers on any free tile (not on the path) with coins. You start with **250 coins** and **20 lives**.
+- Build towers on any free tile (not on the path) with coins. You start with **300 coins** and **20 lives**.
   Game over at 0 lives. Endless: your best wave is saved.
 - **Waves** start on a timer (the first one after 20 s), even if the previous wave is still alive. The timer grows with
   the number of enemies: **30 s** at wave 1, 38 s at wave 10, 47 s at wave 20, **60 s from wave 35** (75 enemies).
@@ -28,19 +28,19 @@ Each shape is both a tower and an enemy. A tower does **×1.5 damage to its own 
 
 | Shape    | Color  | Tower    | Attack                                                                                                                                                      | Cost | Range | Rate  | Damage |
 | -------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ----- | ----- | ------ |
-| Circle   | green  | Pulse    | hits every enemy in range                                                                                                                                   | 60   | 1.8   | 0.8/s | 10     |
-| Diamond  | red    | Flame    | cone toward the target + burn (2 s)                                                                                                                         | 80   | 2.2   | 5/s   | 2.5    |
-| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 3     | 3/s   | 5      |
-| Square   | blue   | Sniper   | instant long-range shot                                                                                                                                     | 100  | 7     | 0.5/s | 40     |
-| Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = dart damage, 4 s, up to 5 stacks)                                                                          | 70   | 3     | 1/s   | 4      |
-| Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 3.5   | 1.2/s | 4      |
-| Hexagon  | cyan   | Frost    | small damage to all in range + **slow 40%** for 1.5 s (55% from level 10)                                                                                   | 70   | 2     | 1/s   | 1.5    |
-| Octagon  | pink   | Electric | lightning: 100% to the target, then **70% to the next 2 enemies behind it** on the path (8 from level 10); each jump reaches at most 1.5 tiles further back | 75   | 2.8   | 0.9/s | 12     |
+| Circle   | green  | Pulse    | hits every enemy in range                                                                                                                                   | 60   | 1.3   | 0.8/s | 10     |
+| Diamond  | red    | Flame    | cone toward the target + burn (2 s)                                                                                                                         | 80   | 1.5   | 5/s   | 2.5    |
+| Triangle | yellow | Rifle    | fast homing bullets                                                                                                                                         | 50   | 2.1   | 3/s   | 5      |
+| Square   | blue   | Sniper   | instant long-range shot                                                                                                                                     | 100  | 4.9   | 0.5/s | 25     |
+| Star     | purple | Poison   | homing dart; each hit adds a poison stack (dps = dart damage, 4 s, up to 5 stacks)                                                                          | 70   | 2.1   | 1/s   | 4      |
+| Pentagon | orange | Piercer  | straight arrow that passes through **3 enemies** (9 from level 10)                                                                                          | 45   | 2.5   | 1.2/s | 4      |
+| Hexagon  | cyan   | Frost    | small damage to all in range + **slow 25%** for 1.5 s (39% from level 10)                                                                                   | 70   | 1.4   | 1/s   | 1.5    |
+| Octagon  | pink   | Electric | lightning: 100% to the target, then **70% to the next 2 enemies behind it** on the path (8 from level 10); each jump reaches at most 1.5 tiles further back | 75   | 2     | 0.9/s | 7      |
 
 | Enemy    | Power                                                                                      | HP  | Speed | Coins per kill | Lives lost at the end |
 | -------- | ------------------------------------------------------------------------------------------ | --- | ----- | -------------- | --------------------- |
-| Circle   | **Regeneration**: heals 2 HP/s                                                             | 30  | 1.6   | 4              | 1                     |
-| Diamond  | **Shield**: 32-point shield absorbs damage first, refills after 2 s without being hit      | 28  | 1.5   | 5              | 2                     |
+| Circle   | **Regeneration**: heals 1.5 HP/s                                                           | 26  | 1.4   | 4              | 1                     |
+| Diamond  | **Shield**: 22-point shield absorbs damage first, refills after 2 s without being hit      | 26  | 1.4   | 5              | 2                     |
 | Triangle | **Speed**: very fast, low HP                                                               | 22  | 3.6   | 5              | 1                     |
 | Square   | **Tank**: lots of HP, slow                                                                 | 180 | 0.95  | 8              | 3                     |
 | Star     | **Armor**: every direct hit is reduced by 5 (at least 20% still goes through)              | 50  | 1.5   | 6              | 2                     |
@@ -112,7 +112,7 @@ Every tower kind is in 2 combos:
 
 - **No level limit.** Levels 1–10 add the same bonus each, so that a **level 10 tower does ×3 damage per second** (+200%):
   damage +11.1% per level (×2 at level 10), fire rate +5.6% (×1.5), range +3.3% (×1.3),
-  Piercer 3 → 9 enemies, Frost slow 40% → 55%, Electric 2 → 8 jumps.
+  Piercer 3 → 9 enemies, Frost slow 25% → 39%, Electric 2 → 8 jumps.
 - **Above level 10**, each level multiplies damage by ×1.1 (fire rate, range, pierce, slow and jumps stay at their
   level-10 values), so a rich player can keep up with the endless enemy growth.
 - **Upgrade** with coins: each level costs 35% more than the previous one (60% of the tower price for level 2).
@@ -164,8 +164,9 @@ Every tower kind is in 2 combos:
   (cap). Total: ×1.8 at wave 20, ×2.7 at 35, ×4.3 at 50, ×13 at 75, ×44 at 100.
 - **Special powers grow slower**, with the square root of the HP growth (×4 HP → ×2 power): shield, regeneration, armor,
   speed (up to ×2), blink distance (up to ×2), summon speed (up to ×2), and one more split copy per +50% power.
-- **Bosses** come with every 5th wave. A single boss comes at the end of the wave; several bosses are spread evenly
-  from the first enemy to the last, so you never fight two big bosses at the same time.
+- **Bosses** come with every 5th wave, early enough to have normal enemies around them for their boss power: a single
+  boss comes after the first quarter of the wave; several bosses are spread evenly from 25% to 85% of the wave, so
+  you never fight two big bosses at the same time.
 
 | Waves     | Bosses                                                                                      |
 | --------- | ------------------------------------------------------------------------------------------- |

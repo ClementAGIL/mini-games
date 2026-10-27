@@ -23,7 +23,7 @@ export const OTHER_SHAPE_MULT = 0.6;
 export const CURVE_LEVELS = 10;
 export const LATE_LEVEL_DAMAGE = 1.1;
 export const SELL_RATIO = 0.5;
-export const START_COINS = 250;
+export const START_COINS = 300;
 export const START_LIVES = 20;
 export const SHIELD_DELAY = 2; // seconds without damage before a shield refills
 export const BURN_TIME = 2;
@@ -94,14 +94,14 @@ export interface TowerStats {
 }
 
 export const TOWERS: Record<Kind, TowerStats> = {
-  circle: { name: 'Pulse', attack: 'hits all in range', cost: 60, range: 1.8, rate: 0.8, damage: 10 },
-  diamond: { name: 'Flame', attack: 'cone + burn', cost: 80, range: 2.2, rate: 5, damage: 2.5 },
-  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 3, rate: 3, damage: 5 },
-  square: { name: 'Sniper', attack: 'long range, big hit', cost: 100, range: 7, rate: 0.5, damage: 40 },
-  star: { name: 'Poison', attack: 'stacking poison', cost: 70, range: 3, rate: 1, damage: 4 },
-  pentagon: { name: 'Piercer', attack: 'pierces enemies', cost: 45, range: 3.5, rate: 1.2, damage: 4 },
-  hexagon: { name: 'Frost', attack: 'slows all in range', cost: 70, range: 2, rate: 1, damage: 1.5 },
-  octagon: { name: 'Electric', attack: 'chain lightning', cost: 75, range: 2.8, rate: 0.9, damage: 12 },
+  circle: { name: 'Pulse', attack: 'hits all in range', cost: 60, range: 1.3, rate: 0.8, damage: 10 },
+  diamond: { name: 'Flame', attack: 'cone + burn', cost: 80, range: 1.5, rate: 5, damage: 2.5 },
+  triangle: { name: 'Rifle', attack: 'fast bullets', cost: 50, range: 2.1, rate: 3, damage: 5 },
+  square: { name: 'Sniper', attack: 'long range, big hit', cost: 100, range: 4.9, rate: 0.5, damage: 25 },
+  star: { name: 'Poison', attack: 'stacking poison', cost: 70, range: 2.1, rate: 1, damage: 4 },
+  pentagon: { name: 'Piercer', attack: 'pierces enemies', cost: 45, range: 2.5, rate: 1.2, damage: 4 },
+  hexagon: { name: 'Frost', attack: 'slows all in range', cost: 70, range: 1.4, rate: 1, damage: 1.5 },
+  octagon: { name: 'Electric', attack: 'chain lightning', cost: 75, range: 2, rate: 0.9, damage: 7 },
 };
 
 // ---------- combos ----------
@@ -199,7 +199,7 @@ export function comboPartners(kind: Kind): { partner: Kind; stat: ComboStat; com
 
 /**
  * Stats at a level. Levels 1–10 add the same amount each, so that at level 10:
- * damage ×2, fire rate ×1.5 (so damage per second ×3), range ×1.3, pierce 3 → 9, slow 40% → 55%,
+ * damage ×2, fire rate ×1.5 (so damage per second ×3), range ×1.3, pierce 3 → 9, slow 25% → 39%,
  * Electric jumps 2 → 8. Above level 10 only damage keeps growing (×1.1 per level), so towers can keep
  * up with enemy growth without firing absurdly fast or covering the whole map.
  * `bonus` comes from combo partners placed next to the tower.
@@ -213,7 +213,7 @@ export function towerStats(kind: Kind, level: number, bonus: Bonus = {}) {
     rate: base.rate * (1 + 0.5 * p) * (1 + (bonus.rate ?? 0)),
     range: base.range * (1 + 0.3 * p) * (1 + (bonus.range ?? 0)),
     pierce: 3 + Math.floor(6 * p), // Piercer: enemies one arrow can hit
-    slow: Math.min(0.8, (0.4 + 0.15 * p) * (1 + (bonus.slow ?? 0))), // Frost: speed reduction
+    slow: Math.min(0.8, (0.25 + 0.14 * p) * (1 + (bonus.slow ?? 0))), // Frost: speed reduction
     chains: 2 + Math.floor(6 * p), // Electric: extra enemies hit after the target
     dot: 1 + (bonus.dot ?? 0), // multiplier for burn and poison
   };
@@ -244,8 +244,8 @@ interface EnemyBase {
 }
 
 export const ENEMIES: Record<Kind, EnemyBase> = {
-  circle: { power: 'Regeneration', hp: 30, speed: 1.6, reward: 4, lives: 1, regen: 2 },
-  diamond: { power: 'Shield', hp: 28, speed: 1.5, reward: 5, lives: 2, shield: 32 },
+  circle: { power: 'Regeneration', hp: 26, speed: 1.4, reward: 4, lives: 1, regen: 1.5 },
+  diamond: { power: 'Shield', hp: 26, speed: 1.4, reward: 5, lives: 2, shield: 22 },
   triangle: { power: 'Speed', hp: 22, speed: 3.6, reward: 5, lives: 1 },
   square: { power: 'Tank', hp: 180, speed: 0.95, reward: 8, lives: 3 },
   star: { power: 'Armor', hp: 50, speed: 1.5, reward: 6, lives: 2, armor: 5 },

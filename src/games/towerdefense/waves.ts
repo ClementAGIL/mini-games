@@ -9,6 +9,9 @@ export const MAX_ENEMIES = 75;
 export const FIRST_WAVE_DELAY = 20;
 export const CLEARED_DELAY = 2; // short breather once every enemy is gone, then the next wave starts
 export const REWARD_GROWTH_WAVES = 12; // coins per kill +1 every 12 waves
+// Where bosses come in a wave (share of the normal enemies spawned before them).
+export const BOSS_FIRST = 0.25;
+export const BOSS_LAST = 0.85;
 
 /** 5 waves after the last type is introduced (wave 41): from here the growth rate steps up every 10 waves. */
 export const GROWTH_START = 5 * KINDS.length + 1;
@@ -111,13 +114,17 @@ function combinations<T>(items: T[], k: number): T[][] {
   return items.flatMap((item, i) => combinations(items.slice(i + 1), k - 1).map((rest) => [item, ...rest]));
 }
 
-/** The enemies of a wave in spawn order. One boss closes the wave; several are spread evenly from the
- * first enemy to the last, so two big bosses never have to be fought at the same time. */
+/**
+ * The enemies of a wave in spawn order. Bosses come early enough to have normal enemies around them (their
+ * auras need them): one boss after the first quarter of the wave; several spread evenly from 25% to 85% of it,
+ * so two big bosses never have to be fought at the same time.
+ */
 export function makeQueue(wave: number): QueuedEnemy[] {
   const queue = waveEnemies(wave).map((kind) => ({ kind, boss: false }));
   const bosses = bossKinds(wave);
   bosses.forEach((kind, j) => {
-    const at = bosses.length === 1 ? queue.length : Math.round((j / (bosses.length - 1)) * queue.length);
+    const share = bosses.length === 1 ? BOSS_FIRST : BOSS_FIRST + ((BOSS_LAST - BOSS_FIRST) * j) / (bosses.length - 1);
+    const at = Math.round(share * queue.length);
     queue.splice(at + j, 0, { kind, boss: true }); // + j: bosses already inserted before this spot
   });
   return queue;
