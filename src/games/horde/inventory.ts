@@ -19,7 +19,7 @@ export const newWeapon = (kind: WeaponKind): OwnedWeapon => ({
 export const noMods = () => Object.fromEntries(STAT_KINDS.map((k) => [k, 0])) as Mods;
 
 /** Rarity index 0 (Iron) .. 4 (Diamond); luck makes the rarer ones more likely. */
-export function rollRarity(luck: number): number {
+function rollRarity(luck: number): number {
   const weights = RARITIES.map((r, i) => r.weight * Math.pow(luckFactor(luck), i));
   let roll = rand(
     0,

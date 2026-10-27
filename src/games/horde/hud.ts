@@ -2,7 +2,7 @@
 import { bar, rect, text } from '../../engine/draw';
 import { STAT_KINDS, WEAPON_SLOTS, xpToNext, type StatKind } from './data';
 import type { Run } from './game';
-import { BOSSES } from './bosses';
+import { bossDef } from './bosses';
 import { drawArtifact, drawStat, drawWeapon } from './icons';
 
 const SLOT = 30; // inventory slot size in px
@@ -21,9 +21,10 @@ export function drawHud(ctx: CanvasRenderingContext2D, run: Run, w: number, h: n
   const bosses = run.bosses;
   if (bosses.length) {
     const bw = Math.min(300, w - 40);
-    const sum = (f: (e: (typeof bosses)[0]) => number) => bosses.reduce((s, e) => s + f(e), 0);
-    text(ctx, BOSSES[bosses[0].bossKind ?? 'starlord'].name.toUpperCase(), w / 2, 64, 11);
-    bar(ctx, (w - bw) / 2, 72, bw, sum((e) => e.hp) / sum((e) => e.maxHp), false, 6);
+    const hp = bosses.reduce((sum, e) => sum + e.hp, 0);
+    const maxHp = bosses.reduce((sum, e) => sum + e.maxHp, 0);
+    text(ctx, bossDef(bosses[0]).name.toUpperCase(), w / 2, 64, 11);
+    bar(ctx, (w - bw) / 2, 72, bw, hp / maxHp, false, 6);
   }
   drawInventory(ctx, run, h);
 }

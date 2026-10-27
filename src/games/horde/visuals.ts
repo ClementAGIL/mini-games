@@ -6,7 +6,7 @@ import { LIGHT_WIDTH, lightAngles, orbitHalf, orbitSquares } from './auras';
 import type { Run } from './game';
 import { boomerangPoints, gearPoints } from './icons';
 import type { Missile, MissileKind } from './model';
-import { statsOf, toward } from './targeting';
+import { statsOf, pointAt } from './targeting';
 
 export const FROST_COLOR = '#4fc3f7';
 export const FIRE_COLOR = '#ff7043';
@@ -97,7 +97,7 @@ function drawLines(ctx: CanvasRenderingContext2D, run: Run) {
     ctx.lineWidth = LIGHT_WIDTH * (1 + run.mods.area);
     ctx.globalAlpha = 0.5;
     for (const a of lightAngles(run, s)) {
-      const end = toward(p, a, s.size);
+      const end = pointAt(p, a, s.size);
       line(ctx, p.x, p.y, end.x, end.y);
     }
     ctx.globalAlpha = 1;

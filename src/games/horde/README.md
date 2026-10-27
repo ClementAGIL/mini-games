@@ -1,6 +1,6 @@
 # Polygon Horde
 
-**Status:** 🚧 First playable · **Difficulty to build:** ★★★★ (horde AI, auto weapons, XP/level-up, stat cards with rarity)
+**Status:** ✅ Playable · **Difficulty to build:** ★★★★★ (horde AI, 17 auto weapons, stat cards with rarity, artifacts, 7 bosses)
 
 ## Rules
 
@@ -167,31 +167,34 @@ Shows time, kills, level, and the damage dealt by each weapon. Restart with Ente
 
 ## Code layout
 
-| File             | Role                                                                  |
-| ---------------- | --------------------------------------------------------------------- |
-| `data.ts`        | Balance: player, difficulty growth, enemies, stats, rarities, drops   |
-| `arsenal.ts`     | Weapon tables (levels, evolutions) and final stats with stat bonuses  |
-| `model.ts`       | Shared types                                                          |
-| `game.ts`        | `Run`: state, update order, player, damage, XP, pickups               |
-| `director.ts`    | Spawning: rate, enemy mix, elites, bosses, recycling far enemies      |
-| `foes.ts`        | Enemy creation and movement / shooting helpers                        |
-| `enemies.ts`     | Enemy behaviors (lookup table), separation, contact, death effects    |
-| `bosses.ts`      | The 7 bosses: phases, minions (eggs, decoys), shockwaves and lasers   |
-| `weapons.ts`     | Weapon timers and the firing lookup table                             |
-| `targeting.ts`   | Shared weapon helpers: final stats, nearest targets, geometry, blasts |
-| `shooters.ts`    | Weapons that fire projectiles (Dart, Shard, Shotgun, Boomerang…)      |
-| `casters.ts`     | Weapons acting around you (Pulse, Frost, Lance, Whip, Chain, Mine…)   |
-| `projectiles.ts` | Flight and hits of each projectile kind (lookup table)                |
-| `auras.ts`       | Always-on contact weapons: Orbit and Lighthouse                       |
-| `attacks.ts`     | Update order of attacks; rings, mines, meteors, black holes           |
-| `inventory.ts`   | Level-up cards, rarity roll with luck, evolutions                     |
-| `shapes.ts`      | Enemy and pickup shapes                                               |
-| `icons.ts`       | Stat and weapon icons (lookup tables)                                 |
-| `render.ts`      | The world: camera, grid, enemies, player                              |
-| `visuals.ts`     | Drawing of projectiles, rings, beams, bolts, blasts, zones            |
-| `hud.ts`         | HUD: XP, HP, time, boss bar, inventory                                |
-| `screens.ts`     | Level-up cards and game-over panels                                   |
-| `horde.ts`       | The scene: input, camera zoom, which screen is shown                  |
+| File             | Role                                                                              |
+| ---------------- | --------------------------------------------------------------------------------- |
+| `data.ts`        | Balance: player, difficulty growth, enemies, stats, rarities, drops               |
+| `arsenal.ts`     | Weapon tables (levels, evolutions) and final stats with stat bonuses              |
+| `model.ts`       | Shared types                                                                      |
+| `game.ts`        | `Run`: state, update order, player, damage, XP, pickups                           |
+| `director.ts`    | Spawning: rate, enemy mix, elites, bosses, recycling far enemies                  |
+| `loot.ts`        | What a kill drops: gems (capped), rare pickups, chests                            |
+| `foes.ts`        | Enemy creation and movement / shooting helpers                                    |
+| `enemies.ts`     | Enemy behaviors (lookup table), separation, contact, death effects                |
+| `bosses.ts`      | The 7 bosses: phases, minions (eggs, decoys), shockwaves and lasers               |
+| `weapons.ts`     | Weapon timers and the firing lookup table                                         |
+| `targeting.ts`   | Shared weapon helpers: final stats, nearest targets, geometry, blasts             |
+| `shooters.ts`    | Weapons that fire projectiles (Dart, Shard, Shotgun, Boomerang…)                  |
+| `casters.ts`     | Weapons acting around you (Pulse, Frost, Lance, Whip, Chain, Mine…)               |
+| `projectiles.ts` | Flight and hits of each projectile kind (lookup table)                            |
+| `auras.ts`       | Always-on contact weapons: Orbit and Lighthouse                                   |
+| `attacks.ts`     | Update order of attacks; rings, mines, meteors, black holes                       |
+| `inventory.ts`   | Level-up cards, rarity roll with luck, banished cards, evolutions                 |
+| `artifacts.ts`   | Artifact table and effects: drone, sentinel, shield, phoenix, fang…               |
+| `levelup.ts`     | Level-up screen (Reroll, Banish) and the boss-chest artifact choice               |
+| `shapes.ts`      | Enemy and pickup shapes                                                           |
+| `icons.ts`       | Stat, weapon and artifact icons (lookup tables)                                   |
+| `render.ts`      | The world: camera, grid, enemies, boss hazards, player and helpers                |
+| `visuals.ts`     | Drawing of projectiles, rings, beams, bolts, blasts, zones                        |
+| `hud.ts`         | HUD: XP, HP, time, boss bar, weapons, artifacts, stats                            |
+| `screens.ts`     | Card panels (level-up, artifacts) and the game-over panel                         |
+| `horde.ts`       | The scene: input, camera zoom, which screen is shown (re-checked after each step) |
 
 ## Design notes
 

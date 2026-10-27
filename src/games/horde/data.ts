@@ -102,6 +102,7 @@ export const SPLIT_INTO = 3;
 export const SHOOTER_RANGE = 210;
 export const SHOOTER_RELOAD = 2.5;
 export const SHOT_SPEED = 150;
+export const SHOT_R = 4; // enemy bullet radius
 export const DASH_RANGE = 280;
 export const DASH_AIM = 0.7;
 export const DASH_TIME = 0.45;

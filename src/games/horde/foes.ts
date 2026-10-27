@@ -1,5 +1,5 @@
 // Enemy creation (with the difficulty growth) and the movement / shooting helpers shared by enemy and boss behaviors.
-import { dist, rand, type Vec } from '../../engine/math';
+import { rand, unitTo, type Vec } from '../../engine/math';
 import {
   damageScale,
   DASH_AIM,
@@ -69,21 +69,14 @@ export function makeEnemy(kind: EnemyKind, pos: Vec, run: Run, opts: EnemyOption
   };
 }
 
-export const unitTo = (from: Vec, to: Vec): Vec => {
-  const d = dist(from, to) || 1;
-  return { x: (to.x - from.x) / d, y: (to.y - from.y) / d };
-};
-
-export const angleTo = (from: Vec, to: Vec) => Math.atan2(to.y - from.y, to.x - from.x);
-
 /** Moves `e` toward `target` (away with a negative speed). */
-export function toward(e: Enemy, target: Vec, speed: number, dt: number) {
+export function walk(e: Enemy, target: Vec, speed: number, dt: number) {
   const u = unitTo(e.pos, target);
   e.pos.x += u.x * speed * dt;
   e.pos.y += u.y * speed * dt;
 }
 
-export const chase: Behavior = (e, run, dt) => toward(e, run.player.pos, e.speed, dt);
+export const chase: Behavior = (e, run, dt) => walk(e, run.player.pos, e.speed, dt);
 
 export function startAim(e: Enemy, target: Vec, time = DASH_AIM) {
   e.mode = 'aim';

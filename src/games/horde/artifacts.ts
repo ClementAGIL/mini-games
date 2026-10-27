@@ -1,6 +1,6 @@
 // Artifacts: rare passive powers chosen from boss chests (5 slots). The table, and the state and effects of the ones
 // that act over time (drone, sentinel, gravity well, shield orb) or on events (phoenix, fang).
-import { dist, shuffle, type Vec } from '../../engine/math';
+import { dist, moveToward, shuffle, type Vec } from '../../engine/math';
 import { ARTIFACT_SLOTS } from './data';
 import type { Run } from './game';
 import { newWeapon } from './inventory';
@@ -53,7 +53,7 @@ const GRAVITY_EVERY = 30;
 const SHIELD_RECHARGE = 15;
 const FANG_EVERY = 10;
 export const REROLLS = 2;
-export const BANISHES = 3;
+const BANISHES = 3;
 export const HOURGLASS = 0.85; // enemy speed factor
 export const PRISM_XP = 1.3;
 
@@ -115,7 +115,7 @@ export class Artifacts {
     if (this.sentinel) this.moveSentinel(run, this.sentinel, dt);
     if (this.has('gravity') && (this.gravityLeft -= dt) <= 0) {
       this.gravityLeft = GRAVITY_EVERY;
-      for (const g of run.pickups) g.pulled ||= g.kind === 'xp';
+      run.pullGems();
     }
   }
 
@@ -125,10 +125,7 @@ export class Artifacts {
     const loot = run.pickups.filter((k) => !k.taken && dist(k.pos, p) < DRONE_RANGE);
     const target = loot.sort((a, b) => dist(a.pos, d) - dist(b.pos, d))[0];
     const goal = target ? target.pos : { x: p.x - 24, y: p.y - 24 };
-    const step = Math.min(dist(goal, d), DRONE_SPEED * dt);
-    const len = dist(goal, d) || 1;
-    d.x += ((goal.x - d.x) / len) * step;
-    d.y += ((goal.y - d.y) / len) * step;
+    moveToward(d, goal, DRONE_SPEED * dt);
     if (target && dist(target.pos, d) < 8) run.collect(target);
   }
 

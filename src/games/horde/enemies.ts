@@ -1,6 +1,6 @@
 // Enemies: behaviors (one function per kind, bosses in bosses.ts), crowd separation, contact damage, enemy bullets
 // and death effects.
-import { circlesHit, dist, rand, type Vec } from '../../engine/math';
+import { angleTo, circlesHit, dist, rand, unitTo, type Vec } from '../../engine/math';
 import { HOURGLASS } from './artifacts';
 import { bossBehavior, decoyBehavior, eggBehavior, expire, updateHazards } from './bosses';
 import {
@@ -12,21 +12,24 @@ import {
   PLAYER_R,
   SHOOTER_RANGE,
   SHOOTER_RELOAD,
+  SHOT_R,
   SPLIT_INTO,
   type EnemyKind,
 } from './data';
-import { chase, dashStep, makeEnemy, shoot, startAim, toward, unitTo, angleTo, type Behavior } from './foes';
+import { chase, dashStep, makeEnemy, shoot, startAim, walk, type Behavior } from './foes';
 import type { Run } from './game';
 import type { Enemy } from './model';
+import { blast } from './targeting';
 
 const KNOCK_KEEP = 0.02; // share of knockback speed kept after one second
+const BLAST_TO_ENEMIES = 1.5; // a bomber's blast hurts enemies more than the player
 
 // Keeps its distance: closes in, backs off, or strafes around the player, and shoots now and then.
 const shooter: Behavior = (e, run, dt) => {
   const p = run.player.pos;
   const d = dist(e.pos, p);
-  if (d > SHOOTER_RANGE + 30) toward(e, p, e.speed, dt);
-  else if (d < SHOOTER_RANGE - 30) toward(e, p, -e.speed, dt);
+  if (d > SHOOTER_RANGE + 30) walk(e, p, e.speed, dt);
+  else if (d < SHOOTER_RANGE - 30) walk(e, p, -e.speed, dt);
   else {
     const u = unitTo(e.pos, p);
     e.pos.x -= u.y * e.speed * 0.6 * dt;
@@ -52,7 +55,7 @@ const bomber: Behavior = (e, run, dt) => {
     if (dist(e.pos, run.player.pos) < FUSE_RANGE + e.r) e.fuse = FUSE;
     return;
   }
-  toward(e, run.player.pos, e.speed * 0.4, dt);
+  walk(e, run.player.pos, e.speed * 0.4, dt);
   if ((e.fuse -= dt) > 0) return;
   e.hp = 0; // a self-destruct gives no XP
   explode(run, e, true);
@@ -77,6 +80,7 @@ export function updateEnemies(run: Run, dt: number) {
   const keep = Math.pow(KNOCK_KEEP, dt);
   const pace = run.relics.has('hourglass') ? HOURGLASS : 1;
   for (const e of run.enemies) {
+    if (e.hp <= 0) continue; // killed earlier in this step, removed at its end
     e.flash -= dt;
     if ((e.ttl -= dt) <= 0) expire(run, e);
     // A chilled enemy lives slower: it moves, aims and reloads at a reduced pace.
@@ -136,7 +140,7 @@ function updateShots(run: Run, dt: number) {
     s.pos.x += s.vel.x * dt;
     s.pos.y += s.vel.y * dt;
     s.life -= dt;
-    if (circlesHit(s.pos, 4, run.player.pos, PLAYER_R)) {
+    if (circlesHit(s.pos, SHOT_R, run.player.pos, PLAYER_R)) {
       run.hurtPlayer(s.damage);
       s.life = 0;
     }
@@ -146,13 +150,10 @@ function updateShots(run: Run, dt: number) {
 
 // ---------- death ----------
 
-/** A blast around `e`: hurts other enemies, and the player too when `hurtsPlayer`. */
+/** A bomber's blast (`e` is already dead): hurts other enemies, and the player too when `hurtsPlayer`. */
 function explode(run: Run, e: Enemy, hurtsPlayer: boolean) {
-  run.blasts.push({ pos: { ...e.pos }, r: BLAST_R, life: 0.3, color: ENEMIES[e.kind].color });
   if (hurtsPlayer && dist(e.pos, run.player.pos) < BLAST_R + PLAYER_R) run.hurtPlayer(e.damage);
-  for (const o of run.grid.near(e.pos.x, e.pos.y, BLAST_R)) {
-    if (o !== e && dist(o.pos, e.pos) < BLAST_R + o.r) run.damage(o, e.damage * 1.5, null);
-  }
+  blast(run, e.pos, BLAST_R, e.damage * BLAST_TO_ENEMIES, null, ENEMIES[e.kind].color);
 }
 
 /** Splitters break into Grunts, bombers explode (hurting only enemies when killed by the player). */

@@ -49,7 +49,8 @@ src/
     effects.ts            Effects: score popups, explosion sparks, screen flash (drawParticles inside a camera)
     grid.ts               SpatialGrid: bucket objects by cell for cheap collision checks
     math.ts               Vec, Rect, rand/randInt/pick/clamp/dist/wrap/approach/angleDiff/shuffle, collisions, inRect,
-                          seededRandom (same seed → same numbers), compact (950, 12.3k, 4.5M)
+                          seededRandom (same seed → same numbers), compact (950, 12.3k, 4.5M), angleTo / unitTo /
+                          moveToward (vector steps)
     scene.ts              Scene + GameEntry interfaces; requestLayout() to refresh a scene's touch buttons
     storage.ts            loadJson/saveJson/removeKey and loadBest/saveBest (never throw)
   menu/menu.ts            game selection screen (+ build info at the bottom)
@@ -63,7 +64,14 @@ src/
     render.ts overlays.ts shapes.ts panel.ts   drawing
     save.ts               save / resume
     towerdefense.ts       the scene: input, layout, selection, resume prompt
-  games/horde/            Polygon Horde (survivors-like), split by role, see its README "Code layout"
+  games/horde/            Polygon Horde (survivors-like), split by role (see its README "Code layout"):
+    data.ts arsenal.ts    balance: player, growth, enemies, stats, rarities / the 17 weapon tables
+    model.ts              shared types
+    game.ts               `Run`: update order, player, damage, XP, pickups; director/foes/enemies/bosses/loot
+                          for enemies, weapons/shooters/casters/projectiles/auras/attacks for weapons
+    inventory.ts artifacts.ts   level-up cards and rarity / artifacts
+    render.ts visuals.ts shapes.ts icons.ts hud.ts screens.ts levelup.ts   drawing and screens
+    horde.ts              the scene: input, camera zoom, which screen is shown
 android/                  generated Capacitor project (only hand-edit: AndroidManifest orientation)
 ```
 
@@ -85,6 +93,9 @@ android/                  generated Capacitor project (only hand-edit: AndroidMa
   support both landscape and portrait, and keep touch controls clear of the play area.
   Touch buttons are only shown on touch devices; the ✕ back button (also `Escape`) is added by `main.ts`.
 - `update(dt)` receives a fixed `dt = 1/60` s. Express speeds in units per second (multiply by `dt`).
+- An exception in `update` or `draw` stops the game loop: the app stays open but the game freezes. A scene with
+  several screens (play, level-up, game over…) must re-check its screen after its update, so `draw` never shows a
+  screen whose data was just cleared (see Polygon Horde's `syncScreen`).
 - Every game has: score/HUD, a game-over (or win) state using `overlay()` with `input.hint('restart')`, and restart
   with `input.confirmed()` (Enter/Space/tap).
 - All persistence goes through `engine/storage.ts` (`loadBest`/`saveBest`, `loadJson`/`saveJson`); never touch
@@ -137,7 +148,7 @@ Before calling a change done, check:
 3. ✅ Asteroids — see `src/games/asteroids/README.md`
 4. ✅ Bomberman — see `src/games/bomberman/README.md`
 5. ✅ Tower Defense (rules designed with the user; see its README before changing gameplay)
-6. 🚧 Polygon Horde — 17 weapons, stat cards with rarity, 12 artifacts, 7 bosses (rules designed with the user; see
-   `src/games/horde/README.md`)
+6. ✅ Polygon Horde — 17 weapons, stat cards with rarity, 12 artifacts, 7 bosses (rules designed with the user; see
+   `src/games/horde/README.md` before changing gameplay)
 
 Build one game at a time and demo it before starting the next.

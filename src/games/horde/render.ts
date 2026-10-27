@@ -1,10 +1,11 @@
 // Draws the Polygon Horde world through a camera centred on the player: dot grid, loot, attacks, enemies, player.
 import { bar, circle, INK, line, LINE } from '../../engine/draw';
-import { DASH_SPEED, DASH_TIME, ENEMIES, PLAYER_R } from './data';
+import { angleTo } from '../../engine/math';
+import { DASH_SPEED, DASH_TIME, ENEMIES, PLAYER_R, SHOT_R } from './data';
 import type { Run } from './game';
 import { drawEnemy, drawPickup } from './shapes';
 import { ARTIFACTS } from './artifacts';
-import { BOSSES } from './bosses';
+import { bossDef } from './bosses';
 import { drawArtifact } from './icons';
 import { drawAttacks } from './visuals';
 
@@ -26,9 +27,9 @@ export function drawWorld(ctx: CanvasRenderingContext2D, run: Run, w: number, h:
   drawHazards(ctx, run);
   for (const s of run.shots) {
     ctx.fillStyle = SHOT_COLOR;
-    circle(ctx, s.pos.x, s.pos.y, 4, true);
+    circle(ctx, s.pos.x, s.pos.y, SHOT_R, true);
     ctx.fillStyle = INK;
-    circle(ctx, s.pos.x, s.pos.y, 4);
+    circle(ctx, s.pos.x, s.pos.y, SHOT_R);
   }
   drawPlayer(ctx, run);
   run.fx.drawParticles(ctx);
@@ -50,7 +51,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, run: Run, vw: number, vh: numbe
 function drawHazards(ctx: CanvasRenderingContext2D, run: Run) {
   const lw = ctx.lineWidth;
   for (const h of run.hazards) {
-    ctx.strokeStyle = BOSSES[h.owner.bossKind ?? 'starlord'].color;
+    ctx.strokeStyle = bossDef(h.owner).color;
     if (h.kind === 'wave') {
       ctx.lineWidth = lw * 3;
       circle(ctx, h.pos.x, h.pos.y, h.r);
@@ -75,7 +76,7 @@ function drawEnemies(ctx: CanvasRenderingContext2D, run: Run) {
       line(ctx, e.pos.x, e.pos.y, e.pos.x + e.aim.x * len, e.pos.y + e.aim.y * len);
       ctx.globalAlpha = 1;
     }
-    if (run.onScreen(e.pos)) drawEnemy(ctx, e, Math.atan2(p.y - e.pos.y, p.x - e.pos.x), run.time);
+    if (run.onScreen(e.pos)) drawEnemy(ctx, e, angleTo(e.pos, p), run.time);
   }
 }
 

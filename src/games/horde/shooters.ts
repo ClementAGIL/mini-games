@@ -1,10 +1,10 @@
 // Weapons that fire projectiles: Dart, Shard, Shotgun, Boomerang, Saw, Homing, Flamer. Their flight is in
 // projectiles.ts.
-import { rand, type Vec } from '../../engine/math';
+import { angleTo, rand, type Vec } from '../../engine/math';
 import type { WeaponStats } from './arsenal';
 import type { Run } from './game';
 import type { Missile, MissileKind, OwnedWeapon } from './model';
-import { angleTo, facingAngle, nearest, nearestN } from './targeting';
+import { facingAngle, nearest, nearestN } from './targeting';
 
 /** Fires once. Returns false when there was nothing to fire at (it tries again next step). */
 export type Fire = (run: Run, w: OwnedWeapon, s: WeaponStats) => boolean;

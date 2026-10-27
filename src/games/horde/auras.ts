@@ -4,7 +4,7 @@ import type { WeaponStats } from './arsenal';
 import { knockBack } from './enemies';
 import type { Run } from './game';
 import type { OwnedWeapon } from './model';
-import { contactHit, segmentDist, statsOf, toward } from './targeting';
+import { contactHit, segmentDist, statsOf, pointAt } from './targeting';
 
 const ORBIT_SPIN = 3.2; // radians per second
 const ORBIT_SQUARE = 7; // half size, grown by Area
@@ -17,7 +17,7 @@ export const orbitHalf = (run: Run) => ORBIT_SQUARE * (1 + run.mods.area);
 /** Centers of an Orbit weapon's squares, evenly spaced on a circle around the player. */
 export function orbitSquares(run: Run, s: WeaponStats): Vec[] {
   return Array.from({ length: s.count }, (_, i) =>
-    toward(run.player.pos, run.orbitAngle + (i / s.count) * Math.PI * 2, s.size),
+    pointAt(run.player.pos, run.orbitAngle + (i / s.count) * Math.PI * 2, s.size),
   );
 }
 
@@ -39,7 +39,7 @@ function lighthouse(run: Run, w: OwnedWeapon, s: WeaponStats) {
   const p = run.player.pos;
   const width = LIGHT_WIDTH * (1 + run.mods.area);
   for (const a of lightAngles(run, s)) {
-    const end = toward(p, a, s.size);
+    const end = pointAt(p, a, s.size);
     for (const e of run.enemies)
       if (segmentDist(e.pos, p, end) < width / 2 + e.r) contactHit(run, e, w, s.damage, s.cooldown);
   }

@@ -5,9 +5,9 @@ import type { WeaponStats } from './arsenal';
 import type { Run } from './game';
 import type { Enemy, OwnedWeapon } from './model';
 import type { Fire } from './shooters';
-import { facingAngle, nearest, nearestN, segmentDist, toward } from './targeting';
+import { facingAngle, nearest, nearestN, segmentDist, pointAt } from './targeting';
 
-export const LANCE_WIDTH = 8;
+const LANCE_WIDTH = 8;
 const WHIP_WIDTH = 30;
 const PULSE_KNOCK = 260;
 const FROST_SLOW = 0.4;
@@ -45,7 +45,7 @@ const frost: Fire = (run, w, s) => {
 /** A straight beam from the player: drawn briefly, hurts every enemy it crosses. */
 function sweep(run: Run, w: OwnedWeapon, s: WeaponStats, angle: number, width: number) {
   const from = { ...run.player.pos };
-  const to = toward(from, angle, s.size);
+  const to = pointAt(from, angle, s.size);
   run.beams.push({ from, to, width, life: 0.15 });
   for (const e of run.enemies) if (segmentDist(e.pos, from, to) < width / 2 + e.r) run.damage(e, s.damage, w);
 }

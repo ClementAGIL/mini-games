@@ -1,6 +1,6 @@
 // What the weapons leave in the world: Pulse / Frost rings, mines, meteor strikes, black holes; and the update order
 // of everything the player's weapons do.
-import { circlesHit, dist } from '../../engine/math';
+import { circlesHit, dist, moveToward } from '../../engine/math';
 import { updateAuras } from './auras';
 import { knockBack } from './enemies';
 import type { Run } from './game';
@@ -67,9 +67,7 @@ function updateVortices(run: Run, dt: number) {
     for (const e of run.grid.near(v.pos.x, v.pos.y, v.radius)) {
       const d = dist(e.pos, v.pos);
       if (d > v.radius || e.boss) continue;
-      const step = Math.min(d, VORTEX_PULL * dt);
-      e.pos.x += ((v.pos.x - e.pos.x) / (d || 1)) * step;
-      e.pos.y += ((v.pos.y - e.pos.y) / (d || 1)) * step;
+      moveToward(e.pos, v.pos, VORTEX_PULL * dt);
       if (tick) run.damage(e, v.damage, v.weapon);
     }
   }

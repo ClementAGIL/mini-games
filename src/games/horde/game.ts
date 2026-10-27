@@ -1,7 +1,7 @@
 // One Polygon Horde run: state, update order, the player, damage, XP and level-ups, pickups.
 import { Effects } from '../../engine/effects';
 import { SpatialGrid } from '../../engine/grid';
-import { circlesHit, dist, type Vec } from '../../engine/math';
+import { circlesHit, dist, moveToward, type Vec } from '../../engine/math';
 import { updateAttacks } from './attacks';
 import {
   ELITE_LUCK,
@@ -42,6 +42,9 @@ import type {
 } from './model';
 import { weaponName } from './arsenal';
 import { updateWeapons } from './weapons';
+
+/** Lucky level-ups given by a boss chest once all artifact slots are full. */
+const FULL_RELIC_LEVELS = 3;
 
 export class Run {
   player: Player = { pos: { x: 0, y: 0 }, hp: PLAYER_HP, maxHp: PLAYER_HP, facing: { x: 1, y: 0 }, invulnerable: 0 };
@@ -206,11 +209,8 @@ export class Run {
   private updatePickups(dt: number) {
     const p = this.player.pos;
     for (const k of this.pickups) {
-      const d = dist(k.pos, p);
-      if (!k.pulled && d > PICKUP_R * (1 + this.mods.magnet)) continue;
-      const step = Math.min(d, (k.pulled ? MAGNET_SPEED : PICKUP_SPEED) * dt);
-      k.pos.x += ((p.x - k.pos.x) / (d || 1)) * step;
-      k.pos.y += ((p.y - k.pos.y) / (d || 1)) * step;
+      if (!k.pulled && dist(k.pos, p) > PICKUP_R * (1 + this.mods.magnet)) continue;
+      moveToward(k.pos, p, (k.pulled ? MAGNET_SPEED : PICKUP_SPEED) * dt);
       if (circlesHit(k.pos, 4, p, PLAYER_R)) this.collect(k);
     }
   }
@@ -225,14 +225,19 @@ export class Run {
     if (k.kind === 'xp') return this.gainXp(k.value);
     this.fx.popup(k.kind, k.pos.x, k.pos.y - 10);
     if (k.kind === 'heal') this.heal(HEAL_DROP);
-    else if (k.kind === 'magnet') for (const g of this.pickups) g.pulled ||= g.kind === 'xp';
+    else if (k.kind === 'magnet') this.pullGems();
     else if (k.kind === 'bomb') this.bomb();
     else if (k.kind === 'chest') this.freeLevels(k.value);
     else if (k.kind === 'relic') {
       // A boss chest: choose an artifact, or 3 lucky level-ups once all artifact slots are full.
-      if (this.relics.full) this.freeLevels(3);
+      if (this.relics.full) this.freeLevels(FULL_RELIC_LEVELS);
       else this.artifactChoice = this.relics.offer();
     }
+  }
+
+  /** Every XP gem flies to the player (magnet pickup, gravity well). */
+  pullGems() {
+    for (const g of this.pickups) g.pulled ||= g.kind === 'xp';
   }
 
   private freeLevels(n: number) {

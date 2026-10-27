@@ -30,8 +30,6 @@ export function nearestN(run: Run, from: Vec, range: number, n: number): Enemy[]
   return [...taken];
 }
 
-export const angleTo = (from: Vec, to: Vec) => Math.atan2(to.y - from.y, to.x - from.x);
-
 export const facingAngle = (run: Run) => Math.atan2(run.player.facing.y, run.player.facing.x);
 
 /** Distance from `p` to the segment a–b. */
@@ -43,7 +41,7 @@ export function segmentDist(p: Vec, a: Vec, b: Vec) {
 }
 
 /** Point at `length` from `from` in direction `angle`. */
-export const toward = (from: Vec, angle: number, length: number): Vec => ({
+export const pointAt = (from: Vec, angle: number, length: number): Vec => ({
   x: from.x + Math.cos(angle) * length,
   y: from.y + Math.sin(angle) * length,
 });
@@ -60,9 +58,9 @@ export function contactHit(run: Run, e: Enemy, w: OwnedWeapon, damage: number, e
   return true;
 }
 
-/** Hurts every enemy within `radius` of `pos` and shows the blast. */
-export function blast(run: Run, pos: Vec, radius: number, damage: number, weapon: OwnedWeapon) {
-  run.blasts.push({ pos: { ...pos }, r: radius, life: 0.25, color: INK });
+/** Hurts every enemy within `radius` of `pos` (credited to `weapon`, if any) and shows the blast. */
+export function blast(run: Run, pos: Vec, radius: number, damage: number, weapon: OwnedWeapon | null, color = INK) {
+  run.blasts.push({ pos: { ...pos }, r: radius, life: 0.3, color });
   for (const e of run.grid.near(pos.x, pos.y, radius)) {
     if (dist(e.pos, pos) < radius + e.r) run.damage(e, damage, weapon);
   }

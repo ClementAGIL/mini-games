@@ -1,6 +1,6 @@
 // Flight and hits of the projectiles: straight (Dart, Pellet, Flame), bouncing between enemies (Shard), coming back
 // (Boomerang), bouncing on the screen edges (Saw), seeking (Homing).
-import { angleDiff, circlesHit, dist } from '../../engine/math';
+import { angleDiff, angleTo, circlesHit, dist } from '../../engine/math';
 import type { Run } from './game';
 import type { Enemy, Missile, MissileKind } from './model';
 import { SPEED } from './shooters';
@@ -25,7 +25,7 @@ const boomerang: Steer = (run, m, dt) => {
   if (m.age - dt < outTime && m.age >= outTime) m.hit.clear();
   if (m.age < outTime) return;
   const p = run.player.pos;
-  aimAt(m, Math.atan2(p.y - m.pos.y, p.x - m.pos.x), SPEED.boomerang);
+  aimAt(m, angleTo(m.pos, p), SPEED.boomerang);
   if (dist(m.pos, p) < 16) m.life = 0;
 };
 
@@ -43,7 +43,7 @@ const homing: Steer = (run, m, dt) => {
   if (!m.target || m.target.hp <= 0) m.target = nearest(run, m.pos, HOMING_RANGE);
   if (!m.target) return;
   const heading = Math.atan2(m.vel.y, m.vel.x);
-  const diff = angleDiff(Math.atan2(m.target.pos.y - m.pos.y, m.target.pos.x - m.pos.x), heading);
+  const diff = angleDiff(angleTo(m.pos, m.target.pos), heading);
   aimAt(m, heading + Math.sign(diff) * Math.min(Math.abs(diff), HOMING_TURN * dt), SPEED.homing);
 };
 
@@ -77,7 +77,7 @@ function onHit(run: Run, m: Missile, e: Enemy) {
 function bounce(run: Run, m: Missile) {
   const next = nearest(run, m.pos, SHARD_JUMP, m.hit);
   if (!next) return void (m.life = 0);
-  aimAt(m, Math.atan2(next.pos.y - m.pos.y, next.pos.x - m.pos.x), SPEED.shard);
+  aimAt(m, angleTo(m.pos, next.pos), SPEED.shard);
   m.life = Math.max(m.life, 1);
 }
 

@@ -32,6 +32,23 @@ export function shuffle<T>(items: T[]): T[] {
   return items;
 }
 
+/** Angle (radians) of the direction from `from` to `to`. */
+export const angleTo = (from: Vec, to: Vec) => Math.atan2(to.y - from.y, to.x - from.x);
+
+/** Unit vector from `from` toward `to` (length 0 never divides by zero). */
+export function unitTo(from: Vec, to: Vec): Vec {
+  const d = dist(from, to) || 1;
+  return { x: (to.x - from.x) / d, y: (to.y - from.y) / d };
+}
+
+/** Moves `p` (in place) toward `target` by at most `step`, without overshooting. */
+export function moveToward(p: Vec, target: Vec, step: number) {
+  const u = unitTo(p, target);
+  const s = Math.min(step, dist(p, target));
+  p.x += u.x * s;
+  p.y += u.y * s;
+}
+
 export const circlesHit = (a: Vec, ra: number, b: Vec, rb: number) => dist(a, b) < ra + rb;
 
 export const inRect = (p: Vec, r: Rect) => p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h;

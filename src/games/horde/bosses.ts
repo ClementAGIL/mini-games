@@ -1,11 +1,11 @@
 // The 7 bosses (one every 3 minutes, in rotation, faster on each loop): their attack phases, their minions
 // (eggs, decoys) and their hazards (shockwaves, lasers).
-import { dist, rand, type Vec } from '../../engine/math';
+import { angleTo, dist, rand, type Vec } from '../../engine/math';
 import { BOSS_GROWTH, PLAYER_R, type Shape } from './data';
-import { angleTo, chase, dashStep, makeEnemy, shoot, startAim, toward, type Behavior } from './foes';
+import { chase, dashStep, makeEnemy, shoot, startAim, walk, type Behavior } from './foes';
 import type { Run } from './game';
 import type { Enemy } from './model';
-import { segmentDist } from './targeting';
+import { segmentDist, pointAt } from './targeting';
 
 export type BossKind = 'starlord' | 'queen' | 'prism' | 'spiral' | 'juggernaut' | 'twins' | 'mirror';
 
@@ -27,6 +27,7 @@ const EGG_HATCH = 3; // seconds
 const HATCH_INTO = 3; // runners per egg
 const ENCIRCLE = 12; // grunts in the closing ring
 const ENCIRCLE_R = 230;
+const SNIPE_RANGE = 260; // the Prism keeps this distance
 const LASER_WARN = 0.8;
 const LASER_SWEEP = 1.6; // radians swept
 const LASER_TIME = 2;
@@ -53,10 +54,8 @@ function every(e: Enemy, dt: number, period: number, fn: () => void) {
   fn();
 }
 
-const around = (c: Vec, r: number, i: number, n: number, turn = 0): Vec => ({
-  x: c.x + Math.cos(turn + (i / n) * Math.PI * 2) * r,
-  y: c.y + Math.sin(turn + (i / n) * Math.PI * 2) * r,
-});
+/** Point `i` of `n` evenly spaced on a circle of radius `r` around `c`, turned by `turn`. */
+const around = (c: Vec, r: number, i: number, n: number, turn = 0): Vec => pointAt(c, turn + (i / n) * Math.PI * 2, r);
 
 function spawnAround(run: Run, kind: 'grunt' | 'egg', c: Vec, r: number, n: number) {
   for (let i = 0; i < n; i++) {
@@ -75,7 +74,7 @@ const ring: Behavior = (e, run, dt) =>
   });
 
 const summon: Behavior = (e, run, dt) => {
-  toward(e, run.player.pos, e.speed * 0.5, dt);
+  walk(e, run.player.pos, e.speed * 0.5, dt);
   once(e, () => spawnAround(run, 'grunt', e.pos, e.r * 2, SUMMON));
 };
 
@@ -85,7 +84,7 @@ const charge: Behavior = (e, run, dt) => {
 };
 
 const layEggs: Behavior = (e, run, dt) => {
-  toward(e, run.player.pos, e.speed * 0.4, dt);
+  walk(e, run.player.pos, e.speed * 0.4, dt);
   once(e, () => spawnAround(run, 'egg', e.pos, e.r * 1.6, EGGS));
 };
 
@@ -95,7 +94,7 @@ const encircle: Behavior = (e, run) => once(e, () => spawnAround(run, 'grunt', r
 // Stays at range and fires 3-bullet fans.
 const snipe: Behavior = (e, run, dt) => {
   const d = dist(e.pos, run.player.pos);
-  if (Math.abs(d - 260) > 30) toward(e, run.player.pos, d > 260 ? e.speed : -e.speed, dt);
+  if (Math.abs(d - SNIPE_RANGE) > 30) walk(e, run.player.pos, d > SNIPE_RANGE ? e.speed : -e.speed, dt);
   every(e, dt, 1.2, () => [-0.2, 0, 0.2].forEach((da) => shoot(run, e, angleTo(e.pos, run.player.pos) + da)));
 };
 
@@ -118,7 +117,7 @@ const laser: Behavior = (e, run) =>
     });
   });
 
-// Two arms of bullets turning around the boss.
+// Two arms of bullets turning around the boss (its `aim.x` keeps the turning angle, `aim.y` the flower's).
 const spiral: Behavior = (e, run, dt) =>
   every(e, dt, SPIRAL_EVERY, () => {
     e.aim.x += SPIRAL_TURN;
@@ -160,7 +159,7 @@ function addWave(run: Run, e: Enemy) {
 const twin: Behavior = (e, run, dt) => {
   const alone = !run.enemies.some((o) => o !== e && o.bossKind === 'twins' && o.boss && o.hp > 0);
   const spot = around(run.player.pos, alone ? TWIN_R * 0.65 : TWIN_R, e.slot, 2, run.time * 0.7);
-  toward(e, spot, e.speed * 1.5, dt);
+  walk(e, spot, e.speed * 1.5, dt);
   every(e, dt, alone ? 0.8 : 1.6, () =>
     [150, 185, 220].forEach((v) => shoot(run, e, angleTo(e.pos, run.player.pos), v)),
   );
@@ -238,7 +237,10 @@ export const BOSSES: Record<BossKind, BossDef> = {
   },
 };
 
-export const BOSS_ORDER = Object.keys(BOSSES) as BossKind[];
+const BOSS_ORDER = Object.keys(BOSSES) as BossKind[];
+
+/** The look and phases of a boss (or of a boss's decoy). */
+export const bossDef = (e: Enemy) => BOSSES[e.bossKind ?? 'starlord'];
 
 /** Boss number `n` (1, 2, …): the next one in the rotation, stronger each time. */
 export function spawnBoss(run: Run, n: number, at: Vec) {
@@ -255,7 +257,7 @@ export function spawnBoss(run: Run, n: number, at: Vec) {
 }
 
 export const bossBehavior: Behavior = (e, run, dt) => {
-  const phases = BOSSES[e.bossKind ?? 'starlord'].phases;
+  const phases = bossDef(e).phases;
   dt *= e.fury;
   if ((e.phaseLeft -= dt) <= 0) {
     e.phase = (e.phase + 1) % phases.length;
